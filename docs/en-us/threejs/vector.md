@@ -52,3 +52,23 @@ const walk = v.clone().multiplyScalar(50);
 // 运动50秒结束位置B
 const B = A.clone().add(walk);
 ```
+
+mesh.scale.multiplyScalar(5)
+
+## 四维向量（Vector4）
+
+w - 向量的w值，默认为1
+
+
+## Scale
+
+一个放大缩小的动画
+```js
+object.scale.setScalar( Math.cos( time ) * 0.125 + 0.875 );
+```
+
+
+## LockAt
+loockAt是一个十分重要的API,不仅可已调整相机的视角，还可以调整mesh的方向，
+已知mesh的起点，和另一个点，通过lockAt调整物体的姿态，**这种方法不适用line**
+startV.lockAt(endV)

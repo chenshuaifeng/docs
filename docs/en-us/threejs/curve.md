@@ -1,8 +1,10 @@
 ## curve曲线
 
 - `.getPointAt` ( u : Float, optionalTarget : Vector ) : Vector
-u - 根据弧长在曲线上的位置。必须在范围[0，1]内。
+u - 根据弧长在曲线上的位置。必须在范围[0，1]内。获取[0, 1]方法：%
 optionalTarget — (可选) 如果需要, (可选) 如果需要, 结果将复制到此向量中，否则将创建一个新向量。
+一插值计算的API，通常u为`time`,这个API常用于时间动画
+
 
 > 获取曲线分段，将弧度转换成顶点数据。 `R*cons`
 

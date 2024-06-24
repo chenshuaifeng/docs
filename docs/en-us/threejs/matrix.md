@@ -1,6 +1,23 @@
-## 模型矩阵
+WebGL 空间中的点和多边形的个体转化由基本的转换矩阵（例如平移，缩放和旋转）处理
+
+## 模型矩阵ModelMatrix
+
+它定义了如何获取原始模型数据并将其在 3D 世界空间中移动。
 
 在图形学中经常会提到模型矩阵的概念，其实模型矩阵就是咱们上节课介绍的平移矩阵、旋转矩阵、缩放矩阵的统称，或者说模型矩阵是平移、缩放、旋转矩阵相乘得到的复合矩阵。
+
+## 投影矩阵ProjectionMatrix
+
+投影矩阵用于将世界空间坐标转换为剪裁空间坐标。常用的投影矩阵（透视矩阵）用于模拟充当 3D 虚拟世界中观看者的替身的典型相机的效果
+
+## 视图矩阵 ViewMatrix
+
+视图矩阵负责移动场景中的对象以模拟相机位置的变化，改变观察者当前能够看到的内容。
+
+### 模型视图矩阵 MoelViewMatrix
+也叫MvMatrix，
+
+**gl_Position = ProjectionMatrix * ModelViewMatrix * VertexPosition**, 投影矩阵 * 模型视图矩阵 * 顶点坐标 生成webGL中物体顶点坐标
 
 ## 几何变换顺序对结果的影响
 假设一个顶点原始坐标(2,0,0)。
@@ -94,3 +111,41 @@ p.applyMatrix4(modelMatrix);
 ```
 ##  矩阵乘法顺序
 矩阵乘法除特殊情况外，一般不满足交换律，R.clone().multiply(T)和T.clone().multiply(R)表示的结果不同，也就是R * T和T * R计算结果不同
+
+
+- threejs中矩阵的应用
+```js
+function setObjectWorldMatrix( object, matrix ) {
+
+    // set the orientation of an object based on a world matrix
+
+    const parent = object.parent;
+    scene.updateMatrixWorld();
+    object.matrix.copy( parent.matrixWorld ).invert();
+    object.applyMatrix4( matrix );
+
+}
+```
+在 three.js 中，Object3D（通常是场景中的任何对象，如网格、组等）具有一些用于变换和位置属性的方法。当你看到像 object.matrix.copy(parent.matrixWorld).invert(); 和 object.applyMatrix4(matrix); 这样的代码时，以下是对这些操作的解释：
+
+object.matrix.copy(parent.matrixWorld);
+这行代码将 parent 的世界矩阵（matrixWorld）复制到 object 的本地矩阵（matrix）中。
+本地矩阵（matrix）定义了对象在其父级坐标系中的位置和旋转。
+世界矩阵（matrixWorld）则定义了对象在全局坐标系（即场景坐标系）中的位置和旋转。
+通常情况下，你不需要直接操作 matrix 或 matrixWorld，除非你有特定的需求或了解它们如何影响渲染。
+.invert();
+这是一个矩阵方法，用于计算并返回当前矩阵的逆矩阵。
+逆矩阵有一个特性，即当它与原矩阵相乘时，结果是一个单位矩阵（对角线为1，其余为0的矩阵）。
+在三维图形中，逆矩阵经常用于将变换从一个空间“反转”回另一个空间。例如，如果你有一个从世界空间到对象空间的变换，你可以使用其逆矩阵来从对象空间转换回世界空间。
+object.applyMatrix4(matrix);
+这行代码将 matrix 应用到 object 上。
+applyMatrix4 方法会将给定的4x4矩阵（在本例中是 matrix）与对象的当前变换相乘，从而更新对象的位置、旋转和缩放。
+这通常用于将复杂的变换（如从一个动画系统或物理模拟中获得的变换）应用到对象上。
+现在，让我们结合这些代码片段来看它们可能的作用：
+
+javascript
+object.matrix.copy(parent.matrixWorld).invert();  
+object.applyMatrix4(matrix);
+首先，object 的本地矩阵被设置为 parent 的世界矩阵的逆矩阵。这通常意味着你正在尝试从 parent 的世界空间转换回 object 的某种“原始”或“局部”空间。
+然后，你将另一个矩阵 matrix 应用到 object 上。由于 object 的当前矩阵（在 applyMatrix4 调用之前）是 parent.matrixWorld 的逆矩阵，因此这个 matrix 实际上是在与 parent.matrixWorld 的逆矩阵相乘。这可能用于将 object 从其“原始”或“局部”空间转换到一个新的空间，该空间与 matrix 相关联。
+注意：直接操作矩阵可能会导致意外的结果，除非你确切知道自己在做什么。在大多数情况下，使用 position、rotation 和 scale 属性来变换对象会更简单、更直观。

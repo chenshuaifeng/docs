@@ -34,3 +34,6 @@ mesh.scale.set(6,6,6);
 mesh.updateMatrix();
 console.log('本地矩阵',mesh.matrix);
 ```
+
+- `.Position(x, yz )`
+给当前矩阵设置位置
