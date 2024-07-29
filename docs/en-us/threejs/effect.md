@@ -43,36 +43,6 @@ effect1.uniforms[ 'scale' ].value = 4;
 composer.addPass( effect1 );
 ```
 
-## 颜色空间通道
-OutputPass
-RGBShiftShader
-
-### FilmPass 
-电影效果
-
-### BloomPass
-滤布效果
-
-## GlitchPass
-电脉冲干扰效果
-
-## outlinePass
-patternTexture
-edgeStrength,
-edgeGlow,
-edgeThickness,
-pulsePeriod,
-rotate,
-usePatternTexture
-
-## ShadePass
-FXAAShader
-消除锯齿
-```js
-effectFXAA.uniforms[ 'resolution' ].value.set( 1 / window.innerWidth, 1 / window.innerHeight );
-
-```
-
 ## AnaglyphEffect
 浅浮雕效果:
 ![https://img.xakwy.com/threejs/docs/AnaglyphEffect.png](AnaglyphEffect)
@@ -85,4 +55,69 @@ effectFXAA.uniforms[ 'resolution' ].value.set( 1 / window.innerWidth, 1 / window
 
     // 2. 渲染
     effect.render( scene, camera );
+```
+
+
+##  webgl_effects_stereo
+雨滴放大镜效果：
+
+```js
+import { StereoEffect } from 'three/addons/effects/StereoEffect.js';
+
+// 1. 给场景添加背景纹理
+scene.background = new THREE.CubeTextureLoader()
+	.setPath( 'textures/cube/Park3Med/' )
+	.load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
+
+// 2. 创建球体，并给球体添加相同的纹理贴图
+envMap: textureCube
+// 3. 折射率
+ refractionRatio: 0.95 
+textureCube.mapping = THREE.CubeRefractionMapping;
+
+   // 1.创建实例
+    effect = new StereoEffect( renderer );
+    effect.setSize( width, height );
+
+    // 2. 渲染
+    effect.render( scene, camera );
+
+```
+
+## 分屏渲染技术
+
+1. 依赖类导入及初始化
+2. 创建分屏
+```js
+	fxaaPass = new ShaderPass( FXAAShader );
+
+				const outputPass = new OutputPass();
+
+				composer1 = new EffectComposer( renderer );
+				composer1.addPass( renderPass );
+				composer1.addPass( outputPass );
+
+				//
+
+				const pixelRatio = renderer.getPixelRatio();
+
+				fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( container.offsetWidth * pixelRatio );
+				fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( container.offsetHeight * pixelRatio );
+
+				composer2 = new EffectComposer( renderer );
+				composer2.addPass( renderPass );
+				composer2.addPass( outputPass );
+```
+3. 分屏渲染
+```js
+// 剪裁测试（Scissor Test）的功能，
+renderer.setScissorTest( true );
+
+renderer.setScissor( 0, 0, halfWidth - 1, container.offsetHeight );
+composer1.render();
+
+renderer.setScissor( halfWidth, 0, halfWidth, container.offsetHeight );
+composer2.render();
+
+renderer.setScissorTest( false );
 ```

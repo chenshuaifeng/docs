@@ -1,3 +1,7 @@
+实例：webgl_lights_physical
+RGB通道的应用关系
+
+ 
 ## 基本属性
 
 - `vertexColors ` : Boolean
@@ -60,18 +64,11 @@ MeshPhoneMatrial高光材质
 材质的高光颜色
 与 shininess一起使用
 
-## 物理引擎ammo.js
-
-遇到的问题是引擎引不进，解决办法通过`script`标签引入脚本
-
-```js
-// 物理引擎ammo.js的示例
-physics_ammo_instancing
-```
 
 ## Color
 `HSL`：颜色、饱和度、亮度
-setHSL(0.01+0.1* (i/count), 1.0, 0.5)
+`setHSL(0.01+0.1* (i/count), 1.0, 0.5)`
+`mesh.setColorAt( i, color.setScalar( 0.1 + 0.9 * Math.random() ) );`
 
 随机颜色：color*Math.random()
 
@@ -82,9 +79,19 @@ offset - 数组的可选偏移量
 
 **遍历循环给buffergeometry设置color**
 ```js
-// 传入colors给colors赋值
-color.toArray(colors, 3 * i)
+for ( let i = 0, l = positionAttribute.count; i < l; i ++ ) {
+	// `HSL`：颜色、饱和度、亮度
+	color.setHSL( 0.01 + 0.1 * ( i / l ), 1.0, 0.5 );
+	color.toArray( colors, i * 3 );
+	sizes[ i ] = PARTICLE_SIZE * 0.5;
+}
 ```
+
+- `color.equals(white)`
+用来判断两个颜色是否相等
+
+- `getStyle`
+Threejs中的Color转Css中的Color
 
 
 ## ShderMaterail自定义Shader
@@ -92,6 +99,13 @@ color.toArray(colors, 3 * i)
 1. 给BufferGeometry设置setAttribut('size')属性
 2. Material中定义GSLS
 
+## wireframeMaterial线框材质
+给mesh表面添加线框
+```js
+	let mesh = new THREE.Mesh( geometry1, material );
+	mesh.add( wireframe );
+
+```
 
 ```js
 const material = new THREE.ShaderMaterial( {
@@ -135,4 +149,38 @@ attributes.size.needsUpdate = true;
 		textureHeight: 1024,
 		flowMap: flowMap
 	} );
+```
+
+## THREEJS设置线宽无效问题
+
+在编写Three.js的时候，设置线模型Line对应线材质LineBasicMaterial的线宽属性lineWidth，是无效的。官方解释
+
+> Due to limitations of the OpenGL Core Profile with the WebGL renderer on most platforms linewidth will always be 1 regardless of the set value.
+
+即由于opengl核心库文件的限制，webgl渲染器在大部分平台上linewidth一直是1，无视你设置的值；
+
+这里通过Line2方式解决
+
+1. 导入相关包
+```js
+import * as THREE from 'three'
+import OrbitControls from 'three-orbitcontrols'
+import { Line2 } from 'three/examples/jsm/lines/Line2'
+import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry'
+import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial'
+```
+2. 创建线条模型
+
+```js
+var geometry = new LineGeometry()
+var pointArr = [-100, 0, 0,-100, 100, 0]
+geometry.setPositions(pointArr)
+var material = new LineMaterial({
+        color: "red",
+        linewidth: 15
+      })
+material.resolution.set(window.innerWidth, window.innerHeight)
+var line = new Line2(geometry, material)
+line.computeLineDistances()
+scene.add(line)
 ```

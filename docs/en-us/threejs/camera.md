@@ -1,8 +1,14 @@
 ## 相机的运动
 > 物理含义
+
 相机运动的方向的单位向量 **乘以** 平移距离 **等于** 位移向量: `disV = camara.getWorldDirection().clone().mutiplyScalar(200)`
 相机的初始位置 **加上** 位移向量 **等于** 相机的新位置：`camara.position.add(disV)`
 
+
+## 正交相机OrthographicCamera
+在这种投影模式下，无论物体距离相机距离远或者近，在最终渲染的图片中物体的大小都保持不变。
+
+- `OrthographicCamera( left : Number, right : Number, top : Number, bottom : Number, near : Number, far : Number )`
 
 
 ## 立方体相机CubeCamera
@@ -159,4 +165,108 @@ camera.position.x += ( mouseX - camera.position.x )* 0.05 ;
 camera.position.y += ( - mouseY - camera.position.y )* 0.05;
 
 camera.lookAt( scene.position );
+```
+
+ - `.layers : Layers`
+图层
+物体的层级关系。 物体只有和一个正在使用的Camera至少在同一个层时才可见。当使用Raycaster进行射线检测的时候此项属性可以用于过滤不参与检测的物体.
+1. 相机的图层layer.enable 
+2. Obeject的图层object.layers.set
+3. 图层操作方法。类似于Map
+
+.layers : Layers
+Used by Raycaster to selectively ignore 3D objects when performing intersection tests. The following code example ensures that only 3D objects on layer 1 will be honored by the instance of Raycaster.
+```js
+raycaster.layers.set( 1 );
+object.layers.enable( 1 );
+	light.layers.enable( 0 );
+    light.layers.enable( 1 );
+    light.layers.enable( 2 );
+```
+
+## 运动过程中切换相机
+原理是：
+1. 渲染函数中调用`this.renderer.render(this.scene, this.camera);`
+2. 传入不同得相机
+3. 将相机作为子对象添加到物体模型中
+```js
+    cameraHelper.update();
+	renderer.render( scene, params.animationView === true ? splineCamera : camera );
+```
+
+
+## 相机沿着曲线运动
+核心原理：**插值运算**
+  
+1. 创建group，将camera作为子对象添加到group中
+2. 动画函数中，插值运算
+求t
+```js
+	const time = Date.now();
+    const looptime = 20 * 1000;
+    const t = ( time % looptime ) / looptime;
+```
+3. 在三维运动中必须调整相机得姿态(欧拉角及四元数)
+4. 运动过程中得相机朝向  `loockAt`相机看向正前方
+可以通过相机Helper辅助开发，查看相机姿态及位置    
+
+```js
+function render() {
+
+    // animate camera along spline
+
+    const time = Date.now();
+    const looptime = 20 * 1000;
+    // [0, 1]按照帧率递增得顺寻
+    const t = ( time % looptime ) / looptime; 
+    // 求插值运算获取position位置。 
+    tubeGeometry.parameters.path.getPointAt( t, position );
+    // 扩大倍数
+    position.multiplyScalar( params.scale );
+
+    // interpolation
+
+    const segments = tubeGeometry.tangents.length;
+    const pickt = t * segments;
+    const pick = Math.floor( pickt );
+    const pickNext = ( pick + 1 ) % segments;
+
+    binormal.subVectors( tubeGeometry.binormals[ pickNext ], tubeGeometry.binormals[ pick ] );
+    binormal.multiplyScalar( pickt - pick ).add( tubeGeometry.binormals[ pick ] );
+
+    tubeGeometry.parameters.path.getTangentAt( t, direction );
+    const offset = 15;
+
+    normal.copy( binormal ).cross( direction );
+
+    // we move on a offset on its binormal
+
+    position.add( normal.clone().multiplyScalar( offset ) );
+    // 给相机position赋值
+    splineCamera.position.copy( position );
+    cameraEye.position.copy( position );
+
+    // using arclength for stablization in look ahead
+
+    tubeGeometry.parameters.path.getPointAt( ( t + 30 / tubeGeometry.parameters.path.getLength() ) % 1, lookAt );
+    lookAt.multiplyScalar( params.scale );
+
+    // camera orientation 2 - up orientation via normal
+    // 改变相机运动过程始终看向正前方
+    // 通过四元数来改变朝向，相机朝向得复杂设置原因是因为tubeGeometry
+    if ( ! params.lookAhead ) lookAt.copy( position ).add( direction );
+    splineCamera.matrix.lookAt( splineCamera.position, lookAt, normal );
+    splineCamera.quaternion.setFromRotationMatrix( splineCamera.matrix );
+
+    cameraHelper.update();
+    // 通过改变相机来改变视角
+    renderer.render( scene, params.animationView === true ? splineCamera : camera );
+
+}
+```
+
+## 相机小技巧
+1. 将屏幕分成两半， `0.5 * aspect`
+```js
+camera = new THREE.PerspectiveCamera( 50, 0.5 * aspect, 1, 10000 );
 ```

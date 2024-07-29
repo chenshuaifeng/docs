@@ -38,3 +38,13 @@ transformControls.addEventListener( 'mouseDown', () => orbitControls.enabled = f
 TrackballControls 与 OrbitControls 相类似。然而，它不能恒定保持摄像机的up向量。 这意味着，如果摄像机绕过“北极”和“南极”，则不会翻转以保持“右侧朝上
 
 实际效果是：不能上下翻转，只能左右翻转
+
+
+## 第一人称控制器FirstPersonControls
+鼠标左右移动时，相机加速移动
+
+- `.lookSpeed : Number`
+环视速度。默认为0.005。
+
+- `movementSpeed:number`
+移动速度。默认为1。

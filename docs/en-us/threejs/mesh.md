@@ -1,3 +1,8 @@
+1. 创建
+2. 确定position、rotation、scale
+3. updateMatrix
+4. setMatrixAtC
+
 ## 属性
 `.getWorldPosition ( target : Vector3 ) : Vector3`
 target — 结果将被复制到这个Vector3中。
@@ -37,9 +42,19 @@ At给给定物体添加矩阵数据，.instanceMatrix : InstancedBufferAttribute
 - `getColorAt `
 获取当前mesh的颜色
 
-## Color
-- `color.equals(white)`
-用来判断两个颜色是否相等
+- `.instanceMatrix.setUsage`
+动态设置点的数量
+
+### Instance与animation结合
+初始化mixer混合glb.scene
+动画函数中通过mixer的`.setMorphAt`给多实例中每个实例设置morph
+设置动画时间`.setTime`
+
+> instance是在初始化给定position还是在animate中给定position
+
+如果mesh动画需要threejs去设置，在动画中给定position,如果mesh不需要动画或者设置morhp在初始化函数中设置
+
+
 
 **mesh.useData**向物体中挂载自定义数据
 
@@ -65,12 +80,13 @@ BufferGeometry + Shape|Curve 生成虚线平面
 ## `.morph`变形
 .morphTargetInfluences : Array
 一个包含有权重（值一般在0-1范围内）的数组，指定应用了多少变形。 默认情况下是未定义的，但是会被updateMorphTargets重置为一个空数组。
+value
 morph的值 = [0, 1]
 
 .morphTargetDictionary : Object
+索引
 基于morphTarget.name属性的morphTargets字典。 默认情况下是未定义的，但是会被updateMorphTargets重建。
 在mesh中定义的动画字典，key变形名称， value索引（0，1，2）
-
 
 复制mesh的方法：.clone
 ```js
@@ -123,4 +139,24 @@ for ( let z = - 2; z <= 2; ++ z )
             object.add( mesh );
 
         }
+```
+
+## 实现流光渐变
+1. 先求顶点
+
+
+## 代码技巧
+一个将物体移动到平面四角得方法
+```js
+	function updateSpritePosition() {
+
+				const halfWidth = window.innerWidth / 2;
+				const halfHeight = window.innerHeight / 2;
+
+				const halfImageWidth = textureSize / 2;
+				const halfImageHeight = textureSize / 2;
+
+				sprite.position.set( halfWidth - halfImageWidth, halfHeight - halfImageHeight, 1 );
+
+			}
 ```

@@ -1,3 +1,10 @@
+- `.toneMappingExposure : Number`
+色调映射的曝光级别。默认是1,调节整个场景的明暗程度
+```js
+renderer.toneMappingExposure = Math.pow( params.exposure, 5.0 )
+```
+
+
 ## WebGLCubeRenderTarget
 
 CubeCamera和WebGLRenderTarget一起使用：

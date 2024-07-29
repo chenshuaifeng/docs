@@ -4,9 +4,20 @@
 
 模型本地矩阵属性.matrix的属性值是一个4x4矩阵Matrix4
 
+由position位置转为matrix矩阵数据进行赋值
+1. position随机生成坐标
+2. 更新mesh得matrix
+3. setMatrixAt(i, matrix)
 ```js
-console.log('mesh.matrix',mesh.matrix);
+
+    dummy.position.set( offset - 300 * x + 200 * Math.random(), 0, offset - 300 * y );
+
+    dummy.updateMatrix();
+
+    mesh.setMatrixAt( i, dummy.matrix );
 ```
+
+
 改变three.js模型对象的.position、.scale或.rotation(.quaternion)任何一个属性，查看查看mesh.matrix值的变化。
 
 1.仅改变mesh.position,你会发现mesh.matrix的值会从单位矩阵变成一个平移矩阵(沿着xyz轴分别平移2、3、

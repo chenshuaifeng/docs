@@ -45,4 +45,7 @@ scene.environment = pmremGenerator.fromScene( new RoomEnvironment( renderer ), 0
 scene.en
 vironment = pmrem;
 ```
-
+## RectAreaLight平面光光源
+1. 不支持阴影。
+2. 只支持 MeshStandardMaterial 和 MeshPhysicalMaterial 两种材质。
+3. 你必须在你的场景中加入 RectAreaLightUniformsLib，并调用 init()。

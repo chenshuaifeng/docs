@@ -59,16 +59,64 @@ mesh.scale.multiplyScalar(5)
 
 w - 向量的w值，默认为1
 
-
-## Scale
-
-一个放大缩小的动画
-```js
-object.scale.setScalar( Math.cos( time ) * 0.125 + 0.875 );
-```
-
-
 ## LockAt
 loockAt是一个十分重要的API,不仅可已调整相机的视角，还可以调整mesh的方向，
 已知mesh的起点，和另一个点，通过lockAt调整物体的姿态，**这种方法不适用line**
 startV.lockAt(endV)
+
+## 光线捕获Raycaste
+
+使用光线捕获技术，给物体平面添加直线
+
+1. 捕获物体`intersectObjects`
+
+point (Vector3): 射线与物体的交点。
+object (Object3D): 与射线相交的物体。
+face (Face3 或 Face4): 如果射线与物体的几何体相交，则此属性表示相交的面的索引。Face3代表三角形面，Face4代表四边形面。
+faceIndex (Integer): 相交面的索引。
+uv (Vector2 或 Vector3): 交点在面上的纹理坐标。对于UV映射，这将是一个Vector2；对于立方体纹理或其他3D纹理映射，它可能是一个Vector3。
+distance (Float): 从射线原点到交点的距离
+
+2. 求两个点坐标
+```js
+	const p = intersects[ 0 ].point;
+    mouseHelper.position.copy( p );
+
+    const n = intersects[ 0 ].face.normal.clone();
+    // 改变向量的方向
+    n.transformDirection( mesh.matrixWorld );
+    n.multiplyScalar( 10 );
+    n.add( intersects[ 0 ].point );
+
+    mouseHelper.lookAt( n );
+
+    const positions = line.geometry.attributes.position;
+    positions.setXYZ( 0, p.x, p.y, p.z );
+    positions.setXYZ( 1, n.x, n.y, n.z );
+    positions.needsUpdate = true;
+ ```
+
+
+
+
+## 属性方法
+
+ - `.transformDirection ( m : Matrix4 ) : this`
+通过传入的矩阵（m的左上角3 x 3子矩阵）变换向量的方向， 并将结果进行normalizes（归一化）。
+用例： 在射线捕获中，获取到平面的法相量,对向量进行归一化处理
+```js
+// 获得平面的法向量
+const n = intersects[ 0 ].face.normal.clone();
+// 按照物体朝向进行方向变换
+n.transformDirection( mesh.matrixWorld );
+n.multiplyScalar( 10 );
+// n点的坐标 = point坐标+n的坐标
+n.add( intersects[ 0 ].point );
+
+const positions = line.geometry.attributes.position;
+
+positions.setXYZ( 0, p.x, p.y, p.z );
+positions.setXYZ( 1, n.x, n.y, n.z );
+positions.needsUpdate = true;
+```
+

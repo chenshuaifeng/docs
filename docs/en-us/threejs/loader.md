@@ -81,3 +81,54 @@ scale.z=start.distanceTo(end)*10
 lookAt(end)
 
 ```
+
+## FontLoader
+
+```js
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+
+// 让文字居中
+textGeo.computeBoundingBox();
+const centerOffset = - 0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
+
+// 文字平面
+const shapes = font.generateShapes( message, 100 );
+const geometry = new THREE.ShapeGeometry( shapes );
+
+// 文字线框
+const points = shape.getPoints();
+const geometry = new THREE.BufferGeometry().setFromPoints( points );
+
+geometry.translate( xMid, 0, 0 );
+
+const lineMesh = new THREE.Line( geometry, matDark );
+lineText.add( lineMesh );
+
+```
+文字的线框模式添加holeShape
+```js
+	const holeShapes = [];
+
+	for ( let i = 0; i < shapes.length; i ++ ) {
+
+		const shape = shapes[ i ];
+
+		if ( shape.holes && shape.holes.length > 0 ) {
+
+			for ( let j = 0; j < shape.holes.length; j ++ ) {
+
+				const hole = shape.holes[ j ];
+				holeShapes.push( hole );
+
+			}
+
+		}
+
+	}
+
+	shapes.push.apply( shapes, holeShapes );
+```
+
+## MLTLoader
+`.MTL `文件格式是 `.OBJ `的配套文件格式,用于加载材质定义文件

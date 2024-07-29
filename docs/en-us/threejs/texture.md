@@ -20,6 +20,75 @@ texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 // 纹理像素
 texture.repeat.set( 0.008, 0.008 );
 ```
+**纹理平铺的基础原理：**
+图片完全铺开1：1repeat的值是（1，1）, 1:2即repeat（2，2）纹理效果是两倍图片效果，一半效果是（1/2, 1/2）
+总结时：缩小N倍
+
+**offset偏移原理**
+当 repeat=（1，1）, 偏移x偏移0.1时，x轴纹理向左移动0.1个单位，y偏移0.1时，y轴向下偏移0.1个单位
+
+## 精灵（Sprite）动画帧FramebufferTexture
+精灵是一个总是面朝着摄像机的平面，通常含有使用一个半透明的纹理。
+
+动画帧纹理是将屏幕中的区域进行裁剪投影
+开启顶点着色
+```js
+	texture = new THREE.FramebufferTexture( textureSize, textureSize );
+
+    const spriteMaterial = new THREE.SpriteMaterial( { map: texture } );
+    sprite = new THREE.Sprite( spriteMaterial );
+    sprite.scale.set( textureSize, textureSize, 1 );
+    sceneOrtho.add( sprite );
+
+    // 屏幕位置算法
+    const halfWidth = window.innerWidth / 2;
+    const halfHeight = window.innerHeight / 2;
+
+    const halfImageWidth = textureSize / 2;
+    const halfImageHeight = textureSize / 2;
+
+    sprite.position.set(  halfWidth - halfImageWidth, halfHeight - halfImageHeight, 1 );
+
+    // 动画
+    function updateColors( colorAttribute ) {
+
+        const l = colorAttribute.count;
+
+        for ( let i = 0; i < l; i ++ ) {
+            // 从【0， 1】得递增函数
+            const h = ( ( offset + i ) % l ) / l;
+
+            color.setHSL( h, 1, 0.5 );
+            colorAttribute.setX( i, color.r );
+            colorAttribute.setY( i, color.g );
+            colorAttribute.setZ( i, color.b );
+
+        }
+
+        colorAttribute.needsUpdate = true;
+
+        offset -= 25;
+    }
+
+    // 渲染
+    // 1. 清除画布
+    // 2. 渲染普通场景
+    // 3. 设置渲染区域,将需要渲染得区域拷贝到纹理中
+    // 4. 清除深度缓冲区并渲染
+    renderer.clear();
+    renderer.render( scene, camera );
+
+    // calculate start position for copying data
+
+    vector.x = ( window.innerWidth * dpr / 2 ) - ( textureSize / 2 );
+    vector.y = ( window.innerHeight * dpr / 2 ) - ( textureSize / 2 );
+
+    renderer.copyFramebufferToTexture( texture, vector );
+
+    renderer.clearDepth();
+    renderer.render( sceneOrtho, cameraOrtho );
+ ```
+
 ## 代码示例
 ### 星空图
 ![angular-question3](../../static/images/texture_starts.png ':size=800')
@@ -191,3 +260,59 @@ void main( void ) {
 ```js
 uniforms[ 'time' ].value += 0.2 * delta;
 ```
+## DDS文件
+DDS文件，全称为DirectDraw Surface，是DirectX纹理压缩（DirectX Texture Compression，简称DXTC）的产物，由NVIDIA公司开发。这种文件格式主要用于存储纹理数据，广泛应用于Microsoft DirectX游戏和应用程序中，特别是在大部分3D游戏引擎中，DDS格式的图片常被用作贴图或制作法线贴图。
+
+DDS文件的特点
+
+DDS文件记录了一张图片的信息，包括颜色、纹理等数据。
+它支持多种压缩格式，如DXT1、DXT3、DXT5等，这些压缩格式能够显著减少文件大小，同时保持较好的图像质量。
+DDS文件通常用于高性能的图形处理场景，如游戏开发、虚拟现实等。
+DDS文件的打开方式
+
+DDS文件可以通过多种方法打开和编辑，以下是一些常见的打开方式：
+
+使用Microsoft DirectX SDK工具：
+DDSView：用于查看DDS文件的内容以及其元数据。
+TexConv：用于将DDS文件转换为其他纹理格式。
+TexMerge：用于合并多个DDS文件到一个文件中。
+使用图像编辑软件：
+Adobe Photoshop：通过安装Nvidia Plug-ins for Adobe Photoshop插件，可以在Photoshop中打开和编辑DDS文件。
+GIMP、Paint.NET、Krita等图像编辑软件也支持打开和编辑DDS文件，但可能需要安装相应的插件或支持库。
+使用第三方工具：
+DDS Plugin for Windows Explorer：允许在Windows资源管理器中预览DDS文件的缩略图。
+DDS Texture Viewer：用于查看DDS文件并提取其纹理数据。
+DDS Converter：用于将DDS文件转换为其他纹理格式。
+其他工具：
+DDS Thumbnail Viewer：一个免费的小工具，可以在Windows平台下查看DDS文件的缩略图，无需打开文件即可预览内容。
+3D MAX DDS插件：允许在3D MAX中打开和编辑DDS文件。
+DDS文件的应用场景
+
+DDS文件因其高效的压缩算法和广泛的应用支持，在游戏开发、虚拟现实、建筑设计、动画制作等领域有着广泛的应用。特别是在游戏开发中，DDS文件作为纹理贴图的主要格式之一，对于提高游戏画面的质量和性能具有重要作用。
+
+综上所述，DDS文件是一种重要的图形文件格式，具有广泛的应用场景和灵活的打开方式。随着图形技术的不断发展，DDS文件在未来仍将继续发挥重要作用。
+
+## lottie 纹理动画
+
+## 帧缓冲纹理
+FramebufferTexture
+取一个变化的物体的某一帧,这个类只能与 `WebGLRenderer.copyFramebufferToTexture()` 结合使用。
+```js
+texture = new THREE.FramebufferTexture( textureSize, textureSize );
+
+const vector = new Vector2();
+vector.x = ( window.innerWidth * pixelRatio / 2 ) - ( textureSize / 2 );
+vector.y = ( window.innerHeight * pixelRatio / 2 ) - ( textureSize / 2 );
+
+// render the scene
+renderer.clear();
+renderer.render( scene, camera );
+
+// copy part of the rendered frame into the framebuffer texture
+renderer.copyFramebufferToTexture( frameTexture, vector );
+```
+
+## 贴图
+凹凸贴图 bumpMap
+1. 与法线贴图nomalMap冲突，有nomalMap则不生效
+2. 黑色白色印象光照的感知深度，黑色的地方更黑

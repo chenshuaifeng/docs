@@ -2,12 +2,24 @@
 
 Three.js对四元数的数学细节和算法进行了封装，提供了一个四元数相关的类，平时写一些姿态角度的代码，可以使用`Quaternion`辅助。本节课，咱们就结合具体的threejs代码科普这个抽象的四元数概念，有了具体代码辅助，这样更容易使用四元数表示物体的姿态角度。
 
+Quaternion( x : Float, y : Float, z : Float, w : Float )
+
 实例化`Quaternion`
 ```js
 const quaternion = new THREE.Quaternion();
 ```
 
 ## 四元数方法
+`.setFromRotationMatrix ( m : Matrix4 ) : this`
+从m的旋转分量中来设置该四元数。
+
+```js
+// 运动得相机调整其位置
+if ( ! params.lookAhead ) lookAt.copy( position ).add( direction );
+				splineCamera.matrix.lookAt( splineCamera.position, lookAt, normal );
+				splineCamera.quaternion.setFromRotationMatrix( splineCamera.matrix );
+        ```
+
 
 - `.setFromAxisAngle()`
 `.setFromAxisAngle(axis, angle)`生成的四元数表示绕axis旋转，旋转角度是angle。`.setFromAxisAngle()`可以生成一个四元数，绕任意轴，旋转任意角度，并不局限于x、y、z轴。
@@ -91,7 +103,7 @@ sun.setFromSphericalCoords( 1, phi, theta );
 经线平行轴线
 1. 东经正数，西经为负数。
 2. 经度分东西，指南北
-
+-180~180
 纬度：latitude
 纬线垂直于地轴
 

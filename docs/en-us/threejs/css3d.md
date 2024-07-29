@@ -36,7 +36,7 @@ const image = document.createElement( 'img' );
 
 ```
 
-一个三D平面的算法
+一个三D平面的算法,已三角函数波得形式
 ```js
 // Plane
 

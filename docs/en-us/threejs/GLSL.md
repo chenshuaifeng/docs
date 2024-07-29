@@ -27,5 +27,6 @@ declare module '*.glsl' {
 }
 ```
 
+在shader中是能够访问到bufferAttribute中的属性的,在shader中也是能够访问到Uniform变量的值
 
 
