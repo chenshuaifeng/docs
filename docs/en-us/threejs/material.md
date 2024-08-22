@@ -3,6 +3,8 @@ RGB通道的应用关系
 
  
 ## 基本属性
+- `alphaToCoverage` : Boolean
+true // only works when WebGLRenderer's "antialias" is set to "true"
 
 - `vertexColors ` : Boolean
 是否使用顶点着色。默认值为false。 此引擎支持RGB或者RGBA两种顶点颜色，取决于缓冲 attribute 使用的是三分量（RGB）还是四分量（RGBA）。
@@ -64,6 +66,27 @@ MeshPhoneMatrial高光材质
 材质的高光颜色
 与 shininess一起使用
 
+- `.needUpdate`：Boolean
+物体创建好后，给添加材质，需要手动更新needUpdate
+```js
+const groundGeometry = new THREE.PlaneGeometry( 20, 20, 10, 10 );
+	const groundMaterial = new THREE.MeshBasicMaterial( { color: 0xcccccc } );
+	const ground = new THREE.Mesh( groundGeometry, groundMaterial );
+	ground.rotation.x = Math.PI * - 0.5;
+	scene.add( ground );
+
+	const textureLoader = new THREE.TextureLoader();
+	textureLoader.load( 'textures/floors/FloorsCheckerboard_S_Diffuse.jpg', function ( map ) {
+
+		map.wrapS = THREE.RepeatWrapping;
+		map.wrapT = THREE.RepeatWrapping;
+		map.anisotropy = 16;
+		map.repeat.set( 4, 4 );
+		groundMaterial.map = map;
+		groundMaterial.needsUpdate = true;
+
+	} );
+	```
 
 ## Color
 `HSL`：颜色、饱和度、亮度
@@ -73,7 +96,7 @@ MeshPhoneMatrial高光材质
 随机颜色：color*Math.random()
 
 `.toArray ( array : Array, offset : Integer ) : Array`
-array - 存储颜色的可选数组
+array - 存储颜色的可选数组, 这个可以是一个数组，也可以是一个attributes
 offset - 数组的可选偏移量
 返回一个格式为[ r, g, b ] 数组
 
@@ -184,3 +207,7 @@ var line = new Line2(geometry, material)
 line.computeLineDistances()
 scene.add(line)
 ```
+
+## ShaderMaterial
+自定义extensions扩展属性，对材质进行扩展
+uniform中的值发生边化

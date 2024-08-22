@@ -121,3 +121,69 @@ composer2.render();
 
 renderer.setScissorTest( false );
 ```
+
+## 天空
+方案一：天空=SphereGeometry + CanvasTexture, canvas方案
+```js
+const canvas = document.createElement( 'canvas' );
+canvas.width = 1;
+canvas.height = 32;
+
+const context = canvas.getContext( '2d' );
+const gradient = context.createLinearGradient( 0, 0, 0, 32 );
+gradient.addColorStop( 0.0, '#014a84' );
+gradient.addColorStop( 0.5, '#0561a0' );
+gradient.addColorStop( 1.0, '#437ab6' );
+context.fillStyle = gradient;
+context.fillRect( 0, 0, 1, 32 );
+
+const skyMap = new THREE.CanvasTexture( canvas );
+skyMap.colorSpace = THREE.SRGBColorSpace;
+
+const sky = new THREE.Mesh(
+	new THREE.SphereGeometry( 10 ),
+	new THREE.MeshBasicMaterial( { map: skyMap, side: THREE.BackSide } )
+);
+scene.add( sky );
+```
+
+方案二： 自定义shader
+```js
+const vertexShader = document.getElementById( 'vertexShader' ).textContent;
+	const fragmentShader = document.getElementById( 'fragmentShader' ).textContent;
+	const uniforms = {
+		'topColor': { value: new THREE.Color( 0x0077ff ) },
+		'bottomColor': { value: new THREE.Color( 0xffffff ) },
+		'offset': { value: 33 },
+		'exponent': { value: 0.6 }
+	};
+	uniforms[ 'topColor' ].value.copy( hemiLight.color );
+
+	scene.fog.color.copy( uniforms[ 'bottomColor' ].value );
+
+	const skyGeo = new THREE.SphereGeometry( 4000, 32, 15 );
+	const skyMat = new THREE.ShaderMaterial( {
+		uniforms: uniforms,
+		vertexShader: vertexShader,
+		fragmentShader: fragmentShader,
+		side: THREE.BackSide
+	} );
+
+	const sky = new THREE.Mesh( skyGeo, skyMat );
+	scene.add( sky );
+	```
+方案三： 内置shader
+特点：有太阳、明暗变化
+```js
+const sky = new Sky();
+sky.scale.setScalar( 10000 );
+scene.add( sky );
+
+const skyUniforms = sky.material.uniforms;
+
+skyUniforms[ 'turbidity' ].value = 10;
+skyUniforms[ 'rayleigh' ].value = 2;
+skyUniforms[ 'mieCoefficient' ].value = 0.005;
+skyUniforms[ 'mieDirectionalG' ].value = 0.8;
+
+```

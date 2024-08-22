@@ -175,9 +175,11 @@ const shape1 = new THREE.Shape( pts1 );
 
 案例：webgl_geometry_spline_editor
 1. 创建四个端点mesh --> 立方体内随机分布 ---> 全局保存对象 ---> 将mesh的坐标保存到position中
+**这一步目的是生成曲线上的四个点的坐标**
 
 2. 创建CatmullRomCurve3
 保存曲线的全局对象 -->通过position生成曲线(没有创建Line) ---> 创建buffergeometry --> 申请200个点的buffer空间 --> 创建Line ---> 添加到场景对象中 ---> loader曲线上四个端点 ---> 用给定的坐标替换postition值，确当端点位置 ---> 通过求插值方式给position赋值 ---> 更新
+**更具点生成3维曲线，使用 插值法求出点，赋值给lineBufferGeometry**
 
 > tranformControl 改变坐标线条的样式
 
@@ -246,6 +248,54 @@ animate\raycast\transform
     } );
 ```
 
+## 内置的Curve实例
+1. 导入Curve
+```js
+import * as Curves from 'three/addons/curves/CurveExtras.js';
+```
+2. 实例化
+```js
+GrannyKnot: new Curves.GrannyKnot(),
+HeartCurve: new Curves.HeartCurve( 3.5 ),
+VivianiCurve: new Curves.VivianiCurve( 70 ),
+KnotCurve: new Curves.KnotCurve(),
+HelixCurve: new Curves.HelixCurve(),
+TrefoilKnot: new Curves.TrefoilKnot(),
+TorusKnot: new Curves.TorusKnot( 20 ),
+CinquefoilKnot: new Curves.CinquefoilKnot( 20 ),
+TrefoilPolynomialKnot: new Curves.TrefoilPolynomialKnot( 14 ),
+FigureEightPolynomialKnot: new Curves.FigureEightPolynomialKnot(),
+DecoratedTorusKnot4a: new Curves.DecoratedTorusKnot4a(),
+DecoratedTorusKnot4b: new Curves.DecoratedTorusKnot4b(),
+DecoratedTorusKnot5a: new Curves.DecoratedTorusKnot5a(),
+DecoratedTorusKnot5c: new Curves.DecoratedTorusKnot5c(),
+PipeSpline: pipeSpline,
+SampleClosedSpline: sampleClosedSpline
+
+```
+3. 管道缓冲几何体（TubeGeometry）
+与ShapeGeometry类似由position构成
+
 ## 矩阵跟随多实例
 
+## 动态曲线
+
+1. 确定点的坐标，生成网格物体
+
+2. 实例BufferGeometry， 申请缓冲区
+
+3. 使用点得坐标生成CatmullRomCurve3
+
+4. 生成line = Geometry + materail
+
+5. 从Curve中通过插值方式获取point,并将它赋值给bufferGeometry
+```js
+	for ( let i = 0; i < ARC_SEGMENTS; i ++ ) {
+
+        const t = i / ( ARC_SEGMENTS - 1 );
+        spline.getPoint( t, point );
+        position.setXYZ( i, point.x, point.y, point.z );
+
+    }
+```
 

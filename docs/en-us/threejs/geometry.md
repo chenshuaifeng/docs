@@ -26,27 +26,7 @@ index - 在attribute中的索引。
 
     }   
 ```
-- `.copyAt ( index1 : Integer, bufferAttribute : BufferAttribute, index2 : Integer ) : this`
-将一个矢量从 bufferAttribute[index2] 拷贝到 array[index1] 中。
 
-```js
-	const intersect = intersects[ 0 ];
-  const face = intersect.face;
-
-  const linePosition = line.geometry.attributes.position;
-  const meshPosition = mesh.geometry.attributes.position;
-
-  linePosition.copyAt( 0, meshPosition, face.a );
-  linePosition.copyAt( 1, meshPosition, face.b );
-  linePosition.copyAt( 2, meshPosition, face.c );
-  linePosition.copyAt( 3, meshPosition, face.a );
-
-  mesh.updateMatrix();
-
-  line.geometry.applyMatrix4( mesh.matrix );
-
-  line.visible = true;
-```
 
 `.userData : Object`
 存储 BufferGeometry 的自定义数据的对象。为保持对象在克隆时完整，该对象不应该包括任何函数的引用。
@@ -695,6 +675,7 @@ points -- (optional) 一个Vector2数组。
 
   ## 三角面片的线
   组成三角形的线的顶点有四个
+  使用bufferGeometry创建line时，需要闭合线段，4个点（0, 1, 2, 0）
   
   ```js
   pointer = new THREE.Vector2();
@@ -722,4 +703,51 @@ points -- (optional) 一个Vector2数组。
 
   ```
   **先确定点的位置然后更新点的位置**
+
+  给geometry外面加一条线
+  1. 生成mesh
+  2. geometry+wireFrame
+  3. mesh.add()
+  ```js
+  mesh = new THREE.Mesh( geometry, material );
+  const wireframe = new THREE.Mesh( geometry, wireframeMaterial );
+  mesh.add( wireframe );
+
+  parent.add( mesh );
+  ```
+  ## verteice求值
+  通过细分度divisions圆形顶点
+  ```js
+  				const vertices = [];
+				const divisions = 50;
+
+				for ( let i = 0; i <= divisions; i ++ ) {
+
+					const v = ( i / divisions ) * ( Math.PI * 2 );
+
+					const x = Math.sin( v );
+					const z = Math.cos( v );
+
+					vertices.push( x, 0, z );
+
+				}
+
+				const geometry = new THREE.BufferGeometry();
+				geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+
+				//
+
+				for ( let i = 1; i <= 3; i ++ ) {
+
+					const material = new THREE.LineBasicMaterial( {
+						color: Math.random() * 0xffffff,
+						linewidth: 10
+					} );
+					const line = new THREE.Line( geometry, material );
+					line.scale.setScalar( i / 3 );
+					scene.add( line );
+
+				}
+```
+  
 

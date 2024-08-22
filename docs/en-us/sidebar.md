@@ -7,8 +7,9 @@
     - [第一、三人称漫游(上)](en-us/threejs/roam)
     - [第一、三人称漫游(中)](en-us/threejs/roam2)
     - [第一、三人称漫游(下)](en-us/threejs/roam3)
+    - [缓冲几何体BufferGeometry](en-us/threejs/texture)
     - [纹理texture](en-us/threejs/texture)
-    - [缓冲几何体Geometry](en-us/threejs/geometry)
+    - [缓冲几何体Geometry](en-us/threejs/buffergeometry)
     - [材质Material](en-us/threejs/material)
     - [阴影Shodw](en-us/threejs/shadow)
     - [光Light](en-us/threejs/light)
@@ -34,5 +35,6 @@
     - [性能](en-us/threejs/performance)
     - [通道](en-us/threejs/pass)
     - [计算](en-us/threejs/comput)
+    - [lookAt](en-us/threejs/looat)
 - WebGL
     - [WebGL开发步骤](en-us/webgl/index)

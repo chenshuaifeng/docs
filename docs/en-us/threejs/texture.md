@@ -316,3 +316,15 @@ renderer.copyFramebufferToTexture( frameTexture, vector );
 凹凸贴图 bumpMap
 1. 与法线贴图nomalMap冲突，有nomalMap则不生效
 2. 黑色白色印象光照的感知深度，黑色的地方更黑
+
+
+## UVsDebug
+
+贴图的调试工具
+
+这有助于调试几何体中的UV问题，并允许新用户可视化UV的内容。
+threejs中缓冲几何体的UV坐标
+
+```js
+import { UVsDebug } from 'three/addons/utils/UVsDebug.js';
+```

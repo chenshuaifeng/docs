@@ -1,5 +1,5 @@
 - `.toneMappingExposure : Number`
-色调映射的曝光级别。默认是1,调节整个场景的明暗程度
+色调映射的曝光级别。默认是1,调节整个场景的明暗程度： 白天黑夜的效果
 ```js
 renderer.toneMappingExposure = Math.pow( params.exposure, 5.0 )
 ```
@@ -79,4 +79,32 @@ if ( OOI.sphere && conf.followSphere ) {
 
 
 
+```
+
+## SVGRenderer
+SVG也有一些十分重要的限制：
+
+没有高级的着色器
+不支持纹理
+不支持阴影
+
+SVGrenderer可以用做粗的线
+
+
+## CSS3D与正交相机
+通过相机的setViewOffset的核心方法来改变视图比例
+```js
+function updateCameraViewOffset( { fullWidth, fullHeight, x, y, width, height } ) {
+
+				if ( ! camera.view ) {
+
+					camera.setViewOffset( fullWidth || window.innerWidth, fullHeight || window.innerHeight, x || 0, y || 0, width || window.innerWidth, height || window.innerHeight );
+
+				} else {
+
+					camera.setViewOffset( fullWidth || camera.view.fullWidth, fullHeight || camera.view.fullHeight, x || camera.view.offsetX, y || camera.view.offsetY, width || camera.view.width, height || camera.view.height );
+
+				}
+
+			} 
 ```

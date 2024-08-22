@@ -30,6 +30,14 @@ mixer = new THREE.AnimationMixer(mesh)
 const clipAction = mixer.clipAction(cilp)
 clipAction.play()
 ```
+混合器接受一个剪辑clip,派发一个action,生成clipAction
+
+```js
+	mixer.clipAction( clip.optimize() ).play();
+```
+`.optimize () : this`
+通过移除等效的顺序键（在变形目标序列中很常见）来优化每一个轨道，性能优化
+
 控制动画的播放、停止
 
 4. 更新动画
@@ -134,6 +142,7 @@ THREE.LoopPingPong - 重复次数为repetitions的值, 且像乒乓球一样在�
 ```js
 // 核心控制更新时间
 mixer.update( mixerUpdateDelta );
+// mixerUpdateDelta时间控制动画的运动快慢
 
 // 在在两帧动画间隙，确定开启单步调式
 if ( singleStepMode ) {
@@ -572,3 +581,54 @@ function createSwordMan() {
   });
 }
 ```
+
+## Morph动画权重
+使用bufferGeometry+morph动画权重
+步骤：
+1. 生成morph顶点数据
+```js
+function generateMorphTargets( geometry ) {
+
+    const data = [];
+
+    for ( let i = 0; i < segments; i ++ ) {
+
+        const x = Math.random() * r - r / 2;
+        const y = Math.random() * r - r / 2;
+        const z = Math.random() * r - r / 2;
+
+        data.push( x, y, z );
+
+    }
+
+    const morphTarget = new THREE.Float32BufferAttribute( data, 3 );
+    morphTarget.name = 'target1';
+
+    geometry.morphAttributes.position = [ morphTarget ];
+
+}
+```
+2. 渲染函数中进行morph权重计算
+```js
+function render() {
+
+    const delta = clock.getDelta();
+    const time = clock.getElapsedTime();
+
+    line.rotation.x = time * 0.25;
+    line.rotation.y = time * 0.5;
+
+    t += delta * 0.5;
+    line.morphTargetInfluences[ 0 ] = Math.abs( Math.sin( t ) );
+
+    renderer.render( scene, camera );
+
+}
+// 一个由0~1在从1~0的函数
+t += delta * 0.5;
+ Math.abs( Math.sin( t ) );
+```
+
+
+
+

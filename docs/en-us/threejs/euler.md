@@ -1,5 +1,14 @@
 欧拉角`Euler`是用来表述物体空间姿态角度的一种数学工具，`Three.js`也提供了相关的类Euler
 
+
+
+- `.rotation`获取欧拉角对象
+- `Mesh.setRotationFromEuler ( euler : Euler ) : undefined`
+euler -- 指定了旋转量的欧拉角。
+调用.quaternion中的setRotationFromEuler( euler)。
+与mesh.rotation.copy(Euler)方法相同
+
+
 ## 创建一个欧拉角表示特定旋转角度
 ```js
 //创建一个欧拉角对象，表示绕x轴旋转60度

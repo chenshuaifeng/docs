@@ -200,15 +200,54 @@ object.layers.enable( 1 );
   
 1. 创建group，将camera作为子对象添加到group中
 2. 动画函数中，插值运算
-求t
+**求插值的算法**: t=[0, 1],循环时间looptime = 20s
 ```js
 	const time = Date.now();
     const looptime = 20 * 1000;
     const t = ( time % looptime ) / looptime;
+    
 ```
 3. 在三维运动中必须调整相机得姿态(欧拉角及四元数)
 4. 运动过程中得相机朝向  `loockAt`相机看向正前方
 可以通过相机Helper辅助开发，查看相机姿态及位置    
+
+5. lookHead的原理: t + 30 / tubeGeometry.parameters.path.getLength()
+获取到position`tubeGeometry.parameters.path.getPointAt( t, position );`
+lookHead: `tubeGeometry.parameters.path.getPointAt( ( t + 30 / tubeGeometry.parameters.path.getLength() ) % 1, lookAt );`
+
+
+在管道中的运动
+1. 先求次法线
+2. 再求position点的位置
+3. 通过点乘求法线
+4. 更新矩阵
+总结：法线 = 次法线 点乘 位置
+```js
+const segments = tubeGeometry.tangents.length;
+const pickt = t * segments; 
+// [0,100]和下一个[0, 100]+1
+const pick = Math.floor( pickt );
+const pickNext = ( pick + 1 ) % segments;
+// .binormals : Array一个Vector3次法线数组
+binormal.subVectors( tubeGeometry.binormals[ pickNext ], tubeGeometry.binormals[ pick ] );
+binormal.multiplyScalar( pickt - pick ).add( tubeGeometry.binormals[ pick ] );
+
+tubeGeometry.parameters.path.getTangentAt( t, direction );
+const offset = 15;
+
+normal.copy( binormal ).cross( direction );
+
+// we move on a offset on its binormal
+// 沿法线偏移
+position.add( normal.clone().multiplyScalar( offset ) );
+```
+最后一步更新矩阵
+```js
+splineCamera.matrix.lookAt( splineCamera.position, lookAt, normal );
+splineCamera.quaternion.setFromRotationMatrix( splineCamera.matrix );
+```
+- `.lookAt ( eye : Vector3, target : Vector3, up : Vector3 ) : this`
+构造一个旋转矩阵，从eye 指向 target，由向量 up 定向。
 
 ```js
 function render() {

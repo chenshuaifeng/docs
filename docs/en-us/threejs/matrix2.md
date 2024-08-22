@@ -48,3 +48,15 @@ console.log('本地矩阵',mesh.matrix);
 
 - `.Position(x, yz )`
 给当前矩阵设置位置
+
+## 代码示例
+通过矩阵进行旋转
+矩阵表示物体在三维空间的姿态，在更新后的基础上再次应用
+```js
+const rotateY = new THREE.Matrix4().makeRotationY( 0.005 );
+....
+
+camera.applyMatrix4( rotateY );
+camera.updateMatrixWorld();
+
+```
