@@ -184,7 +184,7 @@ object.layers.enable( 1 );
     light.layers.enable( 2 );
 ```
 
-## 运动过程中切换相机
+## 相机切换原理
 原理是：
 1. 渲染函数中调用`this.renderer.render(this.scene, this.camera);`
 2. 传入不同得相机

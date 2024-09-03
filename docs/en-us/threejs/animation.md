@@ -89,6 +89,18 @@ instance多实例动画
 2. 给Mixer监听动作动画播放完毕fiNish事件
 3. 最后在执行1/2动作恢复1动画播放
 
+## 动画算法
+
+### 时间算法
+1. 速率控制器  
+```js
+const time = Date.now();
+const looptime = rate * 1000;
+const t = ( time % looptime ) / looptime;
+// 0 < t < 1
+```
+rate速率，表示`t` **从0~1所用时间为多少秒，数值越大，时间越长**
+
 
 ## 模型动画
 
@@ -99,17 +111,7 @@ AnimationMixer(gltf.scene)
 
 
 一个模拟动画的算法
-```js
-time *= 0.001
-// 坦克移动插值
-const tankTime = time * 0.1
-// 小于1的值[0, 1]
-// console.log(tankTime % 1)
-// 从路径中取出[0, 1]的点的位置
-curve.getPointAt(tankTime % 1, tankPosition)
-// 坦克朝向
-curve.getPointAt((tankTime + 0.01) % 1, tankTarget)
-```
+
 
 ## 控制动画
 
@@ -581,6 +583,9 @@ function createSwordMan() {
   });
 }
 ```
+**取模运算%**
+%1
+由0~1然后 再0~1
 
 ## Morph动画权重
 使用bufferGeometry+morph动画权重
@@ -628,6 +633,20 @@ function render() {
 t += delta * 0.5;
  Math.abs( Math.sin( t ) );
 ```
+
+动画算法:
+向上运动的算法
+```js
+// webgl_materials_blending
+	const time = Date.now() * 0.00025;
+    const ox = ( time * - 0.01 * mapBg.repeat.x ) % 1;
+    const oy = ( time * - 0.01 * mapBg.repeat.y ) % 1;
+    mapBg.offset.set( ox, oy );
+```
+
+## 动态行驶的车
+webgl_materials_car
+运动分析
 
 
 

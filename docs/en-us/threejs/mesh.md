@@ -1,49 +1,3 @@
-1. 创建
-2. 确定position、rotation、scale
-3. updateMatrix
-4. setMatrixAtC
-
-## 属性
-`.getWorldPosition ( target : Vector3 ) : Vector3`
-target — 结果将被复制到这个Vector3中。
-
-返回一个表示该物体在世界空间中位置的矢量。
-
-## 多实例物体InstanceMesh(geometry, material, count)
-
-创建由多个物体组成的立方体
-已知列数count=10,物体直径=1 通过物体直径间接得出lenth=10。有别于`索引 * （length / (count -1)） - offset`，通过矩阵的方式直接进行一个求值
-
-```js
-let index=0; // 单位物体
-const offset=(amount -1)/2;/// 4.5
-const matrix = new THREE.Matrix4();
-
-for(let i=0;i<amount;i++){
-    for(let j=0;j<amount;j++){
-        for(let k=0;k<amount;k++){
-            matrix.setPosition(offset-i,offset-j,offset-k);
-            meshes.setMatrixAt(index,matrix);
-            meshes.setColorAt(index,white);
-            index=index + 1;
-        }
-    }
-}
-```
-- `matrix.setPosition`
-将位置坐标保存在矩阵中，给当前矩阵设置位置坐标
-
-- `instanceMesh.setMatrixAt(i, matrix)` 
-At给给定物体添加矩阵数据，.instanceMatrix : InstancedBufferAttribute，表示所有实例的本地变换。 如果你要通过 .setMatrixAt() 来修改实例数据，你必须将它的 needsUpdate 标识为 true 。
-
-- `setColorAt`
-给物体添加颜色，instanceColor : InstancedBufferAttribute，如果通过.setColorAt()修改实例化数据，则必须将它的needsUpdate标志设置为 true。
-
-- `getColorAt `
-获取当前mesh的颜色
-
-- `.instanceMatrix.setUsage`
-动态设置点的数量
 
 ### Instance与animation结合
 初始化mixer混合glb.scene
@@ -77,8 +31,7 @@ material —— （可选） 是一个对象，默认值是一个PointsMaterial�
 
 BufferGeometry + Shape|Curve 生成虚线平面 
 
-## `.morph`变形
-.morphTargetInfluences : Array
+- `.morphTargetInfluences` : Array  
 一个包含有权重（值一般在0-1范围内）的数组，指定应用了多少变形。 默认情况下是未定义的，但是会被updateMorphTargets重置为一个空数组。
 value
 morph的值 = [0, 1]
@@ -159,4 +112,94 @@ for ( let z = - 2; z <= 2; ++ z )
 				sprite.position.set( halfWidth - halfImageWidth, halfHeight - halfImageHeight, 1 );
 
 			}
+```
+## InstanceMesh
+一种具有实例化渲染支持的特殊版本的Mesh。你可以使用 InstancedMesh 来渲染大量具有相同几何体与材质、但具有不同世界变换的物体。 使用 InstancedMesh 将帮助你减少 draw call 的数量，从而提升你应用程序的整体渲染性能。
+
+- `.instanceMatrix : InstancedBufferAttribute`
+表示所有实例的本地变换。 如果你要通过 .setMatrixAt() 来修改实例数据，你必须将它的 needsUpdate 标识为 true 。**bufferAtrribute对象**
+```js
+    // 类型是bufferAttribute
+	mesh.instanceMatrix.setUsage( THREE.DynamicDrawUsage );
+```
+- `.setColorAt ( index : Integer, color : Color ) : undefined`  
+为实例应用颜色
+```js
+mesh.setColorAt( instanceId, color.setHex( Math.random() * 0xffffff ) );
+mesh.instanceColor.needsUpdate = true;
+```
+
+- `.setMatrixAt `( index : Integer, matrix : Matrix4 ) : undefined   
+index: 实例的索引。值必须在 [0, count] 区间。  
+matrix: 一个4x4矩阵，表示单个实例本地变换。  
+设置给定的本地变换矩阵到已定义的实例。 请确保在更新所有矩阵后将 .instanceMatrix.needsUpdate 设置为true。
+```js
+	const offset = ( amount - 1 ) / 2;
+
+    for ( let x = 0; x < amount; x ++ ) {
+
+        for ( let y = 0; y < amount; y ++ ) {
+
+            for ( let z = 0; z < amount; z ++ ) {
+
+                dummy.position.set( offset - x, offset - y, offset - z );
+                dummy.rotation.y = ( Math.sin( x / 4 + time ) + Math.sin( y / 4 + time ) + Math.sin( z / 4 + time ) );
+                dummy.rotation.z = dummy.rotation.y * 2;
+
+                dummy.updateMatrix();
+                // 将dummy的位置、坐标、缩放信息应用给mesh
+                mesh.setMatrixAt( i ++, dummy.matrix );
+            }
+
+        }
+
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+```
+多实例物体应用位置、旋转、缩放的方法：`.setMatrixAt`
+1. Object3D应用
+2. Matrix矩阵应用
+
+
+创建由多个物体组成的立方体
+已知列数count=10,物体直径=1 通过物体直径间接得出lenth=10。有别于`索引 * （length / (count -1)） - offset`，通过矩阵的方式直接进行一个求值
+```js
+let index=0; // 单位物体
+const offset=(amount -1)/2;/// 4.5
+const matrix = new THREE.Matrix4();
+
+for(let i=0;i<amount;i++){
+    for(let j=0;j<amount;j++){
+        for(let k=0;k<amount;k++){
+            matrix.setPosition(offset-i,offset-j,offset-k);
+            meshes.setMatrixAt(index,matrix);
+            meshes.setColorAt(index,white);
+            index=index + 1;
+        }
+    }
+}
+```
+### InstanceMesh+Curve
+
+
+## 销毁mesh
+mesh的销毁过程
+1. Gemoetry销毁
+2. Material销毁
+3. Material.map销毁
+4. 从场景中移除mesh
+
+```js
+const mesh = meshes[ i ];
+mesh.material.dispose();
+mesh.geometry.dispose();
+
+scene.remove( mesh );
+```
+
+## 知识技能
+1. 一个向左旋转一般，然后向右旋转一半的算法
+```js
+// 实例：webgl_instancing_performance
+dummy.rotation.y = ( Math.sin( x / 4 + time ) + Math.sin( y / 4 + time ) + Math.sin( z / 4 + time ) );
 ```

@@ -1,3 +1,7 @@
+## API
+- `tension – 曲线的张力，默认为0.5。`
+可以使得线打结
+
 ## line
 vector
 ```js

@@ -48,3 +48,6 @@ TrackballControls 与 OrbitControls 相类似。然而，它不能恒定保持�
 
 - `movementSpeed:number`
 移动速度。默认为1。
+
+## 指针锁定控制器PointerLockControls
+实例：misc_controls_pointerlock

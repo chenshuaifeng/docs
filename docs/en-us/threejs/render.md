@@ -3,7 +3,68 @@
 ```js
 renderer.toneMappingExposure = Math.pow( params.exposure, 5.0 )
 ```
+- `.getContext`
+返回当前WebGL环境
 
+```js
+// 实例：webgl_buffergeometry_glbufferattribute
+const gl = renderer.getContext();
+const pos = gl.createBuffer();
+gl.bindBuffer( gl.ARRAY_BUFFER, pos );
+gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( positions ), gl.STATIC_DRAW );
+
+const pos2 = gl.createBuffer();
+gl.bindBuffer( gl.ARRAY_BUFFER, pos2 );
+gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( positions2 ), gl.STATIC_DRAW );
+
+const rgb = gl.createBuffer();
+gl.bindBuffer( gl.ARRAY_BUFFER, rgb );
+gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( colors ), gl.STATIC_DRAW );
+
+const posAttr1 = new THREE.GLBufferAttribute( pos, gl.FLOAT, 3, 4, particles );
+const posAttr2 = new THREE.GLBufferAttribute( pos2, gl.FLOAT, 3, 4, particles );
+geometry.setAttribute( 'position', posAttr1 );
+
+```
+1. 返回webGL上下文
+2. 绑定缓冲区
+3. 为当前缓冲区绑定数据
+4. 为bufferGeometry生成attribute
+最终生成attribute,次attribute与buffer绑定
+
+
+- `.copyFramebufferToTexture ( position : Vector2, texture : FramebufferTexture, level : Number )` : undefined
+将当前WebGLFramebuffer中的像素复制到2D纹理中。   
+可访问WebGLRenderingContext.copyTexImage2D.  
+
+**纹理帧+渲染器重复渲染**
+
+
+```js
+function animate() {
+
+    requestAnimationFrame( animate );
+
+    const colorAttribute = line.geometry.getAttribute( 'color' );
+    updateColors( colorAttribute );
+
+    // scene rendering
+
+    renderer.clear();
+    renderer.render( scene, camera );
+
+    // calculate start position for copying data
+
+    vector.x = ( window.innerWidth * dpr / 2 ) - ( textureSize / 2 );
+    vector.y = ( window.innerHeight * dpr / 2 ) - ( textureSize / 2 );
+
+    renderer.copyFramebufferToTexture( vector, texture );
+
+    renderer.clearDepth();
+    renderer.render( sceneOrtho, cameraOrtho );
+
+}
+```
 
 ## WebGLCubeRenderTarget
 
@@ -76,8 +137,6 @@ if ( OOI.sphere && conf.followSphere ) {
     labelRenderer.domElement.style.top = '0px';
     labelRenderer.domElement.style.pointerEvents = 'none';
     document.getElementById( 'container' ).appendChild( labelRenderer.domElement );
-
-
 
 ```
 

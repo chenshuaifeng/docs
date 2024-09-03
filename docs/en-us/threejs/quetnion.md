@@ -2,7 +2,8 @@
 
 Three.js对四元数的数学细节和算法进行了封装，提供了一个四元数相关的类，平时写一些姿态角度的代码，可以使用`Quaternion`辅助。本节课，咱们就结合具体的threejs代码科普这个抽象的四元数概念，有了具体代码辅助，这样更容易使用四元数表示物体的姿态角度。
 
-Quaternion( x : Float, y : Float, z : Float, w : Float )
+
+Quaternion( x : Float, y : Float, z : Float, w : Float ) [-1,1]
 
 实例化`Quaternion`
 ```js

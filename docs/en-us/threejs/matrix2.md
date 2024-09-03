@@ -1,4 +1,30 @@
-## 模型本地矩阵、世界矩阵
+## API
+- `.Position(x, yz )`
+给当前矩阵设置位置
+- `.compose ( position : Vector3, quaternion : Quaternion, scale : Vector3 ) : this`
+设置将该对象位置 position，四元数quaternion 和 缩放scale 组合变换的矩阵。将位置、旋转、缩放属性赋值给矩阵
+```js
+    const position = new THREE.Vector3();
+    const rotation = new THREE.Euler();
+    const quaternion = new THREE.Quaternion();
+    const scale = new THREE.Vector3();
+            
+    position.x = Math.random() * 40 - 20;
+    position.y = Math.random() * 40 - 20;
+    position.z = Math.random() * 40 - 20;
+
+    rotation.x = Math.random() * 2 * Math.PI;
+    rotation.y = Math.random() * 2 * Math.PI;
+    rotation.z = Math.random() * 2 * Math.PI;
+
+    quaternion.setFromEuler( rotation );
+
+    scale.x = scale.y = scale.z = Math.random() * 1;
+
+    matrix.compose( position, quaternion, scale );
+```
+物体的角度姿态属性设置：欧拉角 -> 四元数
+
 
 ## 本地矩阵`.matrix`、世界矩阵`.matrixWorld`
 
@@ -46,8 +72,7 @@ mesh.updateMatrix();
 console.log('本地矩阵',mesh.matrix);
 ```
 
-- `.Position(x, yz )`
-给当前矩阵设置位置
+
 
 ## 代码示例
 通过矩阵进行旋转
@@ -60,3 +85,5 @@ camera.applyMatrix4( rotateY );
 camera.updateMatrixWorld();
 
 ```
+给矩阵应用四元数
+tmpM.makeRotationFromQuaternion( tmpQ );

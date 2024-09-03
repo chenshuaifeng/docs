@@ -117,6 +117,20 @@ for ( let i = 0, l = positionAttribute.count; i < l; i ++ ) {
 Threejs中的Color转Css中的Color
 
 
+## 点Point材质
+- `.size : Number`
+设置点的大小。默认值为1.0。
+
+```js
+new THREE.PointsMaterial( {
+	color: 0xFFFFFF,
+	size: 3,
+	blending: THREE.AdditiveBlending,
+	transparent: true,
+	sizeAttenuation: false
+} );
+```
+
 ## ShderMaterail自定义Shader
 `UV`框架帮助我们从`Geometry`中获取变量
 1. 给BufferGeometry设置setAttribut('size')属性
