@@ -30,7 +30,7 @@ cubeCamera.update( renderer, scene );
 ```
 `cubeCamera`与`WebGLCubeRenderTarget`一起使用
 
-**总结：其作用是对于纹理贴图得增强，使envMap可以反射来自于动态得物体Mesh**
+**总结：动态纹理投射**
 
 ## 多个控制器
 ```js

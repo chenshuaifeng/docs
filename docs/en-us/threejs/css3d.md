@@ -104,5 +104,4 @@ const image = document.createElement( 'img' );
 				}
 ```
 
-球面坐标待深入研究
 

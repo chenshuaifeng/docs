@@ -27,6 +27,27 @@ true // only works when WebGLRenderer's "antialias" is set to "true"
 color.setHex(Math.random() * 0xfffffff)
 ```
 
+## GLTF材质
+删除法线
+```js
+new GLTFLoader().load( 'models/gltf/Nefertiti/Nefertiti.glb', function ( gltf ) {
+	gltf.scene.traverse( function ( child ) {
+		if ( child.isMesh ) {
+			// glTF currently supports only tangent-space normal maps.
+			// this model has been modified to demonstrate the use of an object-space normal map.
+			child.material.normalMapType = THREE.ObjectSpaceNormalMap;
+			// attribute normals are not required with an object-space normal map. remove them.
+			child.geometry.deleteAttribute( 'normal' );
+			child.material.side = THREE.DoubleSide;
+			child.scale.multiplyScalar( 0.5 );
+			// recenter
+			new THREE.Box3().setFromObject( child ).getCenter( child.position ).multiplyScalar( - 1 );
+			scene.add( child );
+		}
+	} );
+} );
+```
+
 ### 贴图
 基础材质具有的贴图属性：
 
@@ -87,6 +108,78 @@ const groundGeometry = new THREE.PlaneGeometry( 20, 20, 10, 10 );
 
 	} );
 	```
+## 材质类型
+### PBER材质
+**MeshPhysicalMaterial**物理网格材质
+Clearcoat: 有些类似于车漆，碳纤，被水打湿的表面的材质需要在面上再增加一个透明的，具有一定反光特性的面。而且这个面说不定有一定的起伏与粗糙度。Clearcoat可以在不需要重新创建一个透明的面的情况下做到类似的效果。 
+范围从0.0到1.0m 
+
+- `.clearcoatRoughness : Float`  
+clear coat层的粗糙度，由0.0到1.0。 默认为0.0
+- `.sheen : Float`
+光泽层的强度,范围是0.0到1.0。默认为0.0。
+
+```js
+const bodyMaterial = new THREE.MeshPhysicalMaterial( {
+	color: 0xff0000, 
+	metalness: 1.0, 
+	roughness: 0.5,
+	clearcoat: 1.0, 
+	clearcoatRoughness: 0.03, 
+	sheen: 0.5
+} );
+```
+
+玻璃材质实例：webgl_postprocessing_advanced
+辉光材质实例：webgl_loader_gltf_sheen
+
+- `.transmission : Float`
+透光率（或者说透光性），范围从0.0到1.0。默认值是0.0。  
+很薄的透明或者半透明的塑料、玻璃材质即便在几乎完全透明的情况下仍旧会保留反射的光线，透光性属性用于这种类型的材质。  
+当透光率不为0的时候, opacity透明度应设置为1.
+```js
+const glassMaterial = new THREE.MeshPhysicalMaterial( {
+	color: 0xffffff,
+	 metalness: 0.25,
+	  roughness: 0, 
+	  transmission: 1.0
+} );
+```
+
+磨砂玻璃材质
+```js
+const params = {
+    color: 0xffffff,
+    //类似透明度
+    transmission: 0.9,
+    opacity: 1,
+    //金属度
+    metalness: 0,
+    //粗糙
+    roughness: 0,
+    //折射率
+    ior: 1.52,
+    //厚度 透过看物体的模糊程度
+    thickness: 0.8,
+    //镜面强度
+    specularIntensity: 1,
+    //镜面颜色
+    specularColor: new Color("#ffffff"),
+    //光强度
+    lightIntensity: 1
+};
+{
+    "color": 0xffffff,
+    "transmission": 0.9063505503810331,
+    "opacity": 0.9713801862828112,
+    "metalness": 0,
+    "roughness": 0.45114309906858596,
+    "ior": 1.52,
+    "thickness": 0.8,
+    "specularIntensity": 1
+}
+```
+
 
 ## Color
 `HSL`：颜色、饱和度、亮度
@@ -135,6 +228,9 @@ new THREE.PointsMaterial( {
 `UV`框架帮助我们从`Geometry`中获取变量
 1. 给BufferGeometry设置setAttribut('size')属性
 2. Material中定义GSLS
+
+自定义extensions扩展属性，对材质进行扩展
+uniform中的值发生边化
 
 ## wireframeMaterial线框材质
 给mesh表面添加线框
@@ -222,6 +318,23 @@ line.computeLineDistances()
 scene.add(line)
 ```
 
-## ShaderMaterial
-自定义extensions扩展属性，对材质进行扩展
-uniform中的值发生边化
+3. 实例
+```js
+function render() {
+	let material = mesh.material;
+	switch ( params.material ) {
+		case 'standard': material = materialStandard; break;
+		case 'depthBasic': material = materialDepthBasic; break;
+		case 'depthRGBA': material = materialDepthRGBA; break;
+		case 'normal': material = materialNormal; break;
+		case 'velocity': material = materialVelocity; break;
+	}
+}
+
+// 手动更新纹理贴图
+sphereMaterial.envMap = textureCube;
+sphereMaterial.needsUpdate = true;
+```
+
+> 材质渲染过程中可以通过赋值的方式直接进行替换更新,不需要手动更新材质。更换纹理贴图需要手动更新
+

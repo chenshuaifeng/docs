@@ -48,3 +48,23 @@ itemsTotal — 总共所需要加载项的个数。
 - `hilbert3D`
 以非常快速的方式生成三维坐标。
 
+## LoadingManager加载管理器
+LoadingManager是一个全局实例, 当其他加载器没有指定加载管理器时，它将被其他大多数的加载器设为默认的加载管理器。
+
+实例：webgl_materials_envmaps_exr
+```js
+THREE.DefaultLoadingManager.onLoad = function ( ) {
+    pmremGenerator.dispose();
+};
+```
+
+## 辅助工具
+
+### Box3
+
+```js
+// 移动物体位置
+new THREE.Box3().setFromObject( child ).getCenter( child.position ).multiplyScalar( - 1 );
+```
+包围盒可以用来移动物体位置
+

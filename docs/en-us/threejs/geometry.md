@@ -1,5 +1,4 @@
 
-## 自定义缓冲几何体 BufferGeometry
 所有几何体得基类
 - `.setFromPoints ( points : Array ) : this`
 
@@ -277,6 +276,22 @@ function animate() {
 
     }
 ```
+动态的postion
+```js
+geometry = new THREE.PlaneGeometry( 20000, 20000, worldWidth - 1, worldDepth - 1 );
+    geometry.rotateX( - Math.PI / 2 );
+    const position = geometry.attributes.position;
+    position.usage = THREE.DynamicDrawUsage;
+    for ( let i = 0; i < position.count; i ++ ) {
+      const y = 35 * Math.sin( i / 2 );
+      position.setY( i, y );
+    }
+    const texture = new THREE.TextureLoader().load( 'textures/water.jpg' );
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set( 5, 5 );
+    material = new THREE.MeshBasicMaterial( { color: 0x0044ff, map: texture } );
+    mesh = new THREE.Mesh( geometry, material );
+```
 
 给模型添加坐标，获取模型矩阵后，然后赋值给InstancesMesh
 1. 求出模型坐标
@@ -475,6 +490,18 @@ const pointsMaterial = new THREE.PointsMaterial( {
 
 ```js
 import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
+
+const meshMaterial = new THREE.MeshLambertMaterial( {
+    color: 0xffffff,
+    opacity: 0.5,
+    side: THREE.DoubleSide,
+    transparent: true
+  } );
+
+  const meshGeometry = new ConvexGeometry( vertices );
+
+  const mesh = new THREE.Mesh( meshGeometry, meshMaterial );
+  group.add( mesh );
 ```
 
 ## 多实例网格（InstancedMesh）
@@ -715,39 +742,85 @@ points -- (optional) 一个Vector2数组。
 
   parent.add( mesh );
   ```
+
+## 实例
+1. 通过三维模型创建线框模型
+实例：webgl_materials_wireframe
+```js
+new THREE.BufferGeometryLoader().load( 'models/json/WaltHeadLo_buffergeometry.json', function ( geometry ) {
+  geometry.deleteAttribute( 'normal' );
+  geometry.deleteAttribute( 'uv' );
+  setupAttributes( geometry );
+  // 线框模型
+  const material1 = new THREE.MeshBasicMaterial( {
+    color: 0xe0e0ff,
+    wireframe: true
+  } );
+  const mesh1 = new THREE.Mesh( geometry, material1 );
+  mesh1.position.set( - 40, 0, 0 );
+  scene.add( mesh1 );
+  // 线框大小可调节
+  const material2 = new THREE.ShaderMaterial( {
+    uniforms: { 'thickness': { value: API.thickness } },
+    vertexShader: document.getElementById( 'vertexShader' ).textContent,
+    fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+    side: THREE.DoubleSide,
+    alphaToCoverage: true // only works when WebGLRenderer's "antialias" is set to "true"
+  } );
+  material2.extensions.derivatives = true;
+  mesh2 = new THREE.Mesh( geometry, material2 );
+  mesh2.position.set( 40, 0, 0 );
+  scene.add( mesh2 );
+});
+function setupAttributes( geometry ) {
+  const vectors = [
+    new THREE.Vector3( 1, 0, 0 ),
+    new THREE.Vector3( 0, 1, 0 ),
+    new THREE.Vector3( 0, 0, 1 )
+  ];
+  const position = geometry.attributes.position;
+  const centers = new Float32Array( position.count * 3 );
+  for ( let i = 0, l = position.count; i < l; i ++ ) {
+    vectors[ i % 3 ].toArray( centers, i * 3 );
+  }
+  geometry.setAttribute( 'center', new THREE.BufferAttribute( centers, 3 ) );
+}
+
+```
+总结：
+1. 材质属性wireframe
+2. 可调节线框的shadeMaterial材质的bufferAttibuter添加center属性
+
+
   ## verteice求值
   通过细分度divisions圆形顶点
   ```js
-  				const vertices = [];
-				const divisions = 50;
+    const vertices = [];
+      const divisions = 50;
 
-				for ( let i = 0; i <= divisions; i ++ ) {
+      for ( let i = 0; i <= divisions; i ++ ) {
 
-					const v = ( i / divisions ) * ( Math.PI * 2 );
+        const v = ( i / divisions ) * ( Math.PI * 2 );
 
-					const x = Math.sin( v );
-					const z = Math.cos( v );
+        const x = Math.sin( v );
+        const z = Math.cos( v );
 
-					vertices.push( x, 0, z );
+        vertices.push( x, 0, z );
 
-				}
+      }
 
-				const geometry = new THREE.BufferGeometry();
-				geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
 
-				//
+      //
+      for ( let i = 1; i <= 3; i ++ ) {
 
-				for ( let i = 1; i <= 3; i ++ ) {
-
-					const material = new THREE.LineBasicMaterial( {
-						color: Math.random() * 0xffffff,
-						linewidth: 10
-					} );
-					const line = new THREE.Line( geometry, material );
-					line.scale.setScalar( i / 3 );
-					scene.add( line );
-
-				}
+        const material = new THREE.LineBasicMaterial( {
+          color: Math.random() * 0xffffff,
+          linewidth: 10
+        } );
+        const line = new THREE.Line( geometry, material );
+        line.scale.setScalar( i / 3 );
+        scene.add( line );
+      }
 ```
-  
-

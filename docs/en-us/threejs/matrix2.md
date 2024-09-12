@@ -87,3 +87,5 @@ camera.updateMatrixWorld();
 ```
 给矩阵应用四元数
 tmpM.makeRotationFromQuaternion( tmpQ );
+
+

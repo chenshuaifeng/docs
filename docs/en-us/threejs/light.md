@@ -8,6 +8,21 @@
 - `penumbera:Float` 
 光圆边缘模糊程度，值越大越模糊
 
+**折射Reflaction与反射Reflection**
+Reflaction: 物体呈现透明色气泡
+Reflection：物体呈现周围环境
+
+实例：webgl_materials_envmaps
+```js
+	if ( value ) {
+    textureEquirec.mapping = THREE.EquirectangularRefractionMapping;
+    textureCube.mapping = THREE.CubeRefractionMapping;
+    } else {
+    textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
+    textureCube.mapping = THREE.CubeReflectionMapping;
+    }
+    sphereMaterial.needsUpdate = true;
+```
 
 
 ## 光线技术
@@ -30,6 +45,7 @@
 ```js
 lightProbe.copy(texture)
 ```
+**光照探针的原理是从环境中捕获光线，生成环境贴图**
 
 ### PMREMGenerator 环境光
 THREEJS内置的环境光纹理shdow
@@ -60,6 +76,7 @@ function createEnvironment() {
 }
 ```
 
+```js
 scene.en
 vironment = pmrem;
 ```
@@ -68,6 +85,14 @@ vironment = pmrem;
 2. 只支持 MeshStandardMaterial 和 MeshPhysicalMaterial 两种材质。
 3. 你必须在你的场景中加入 RectAreaLightUniformsLib，并调用 init()。
 
+
+实例：webgl_materials_car
+```js
+scene.background = new THREE.Color( 0x333333 );
+scene.environment = new RGBELoader().load( 'textures/equirectangular/venice_sunset_1k.hdr' );
+scene.environment.mapping = THREE.EquirectangularReflectionMapping;
+scene.fog = new THREE.Fog( 0x333333, 10, 15 );
+```
 
 ## 模拟点光源及
 ```js
@@ -89,18 +114,32 @@ vironment = pmrem;
 webgl_refraction
 
 ```js
-const refractorGeometry = new THREE.PlaneGeometry( 90, 90 );
+import { Refractor } from 'three/addons/objects/Refractor.js';
+import { WaterRefractionShader } from 'three/addons/shaders/WaterRefractionShader.js';
 
+const refractorGeometry = new THREE.PlaneGeometry( 90, 90 );
 refractor = new Refractor( refractorGeometry, {
     color: 0x999999,
     textureWidth: 1024,
     textureHeight: 1024,
     shader: WaterRefractionShader
 } );
-
 refractor.position.set( 0, 50, 0 );
-
 scene.add( refractor );
+
+function animate() {
+    requestAnimationFrame( animate );
+    const time = clock.getElapsedTime();
+    refractor.material.uniforms.time.value = time;
+    smallSphere.position.set(
+        Math.cos( time ) * 30,
+        Math.abs( Math.cos( time * 2 ) ) * 20 + 5,
+        Math.sin( time ) * 30
+    );
+    smallSphere.rotation.y = ( Math.PI / 2 ) - time;
+    smallSphere.rotation.z = time * 8;
+    renderer.render( scene, camera );
+}
 ```
 
 ## 透明的墙

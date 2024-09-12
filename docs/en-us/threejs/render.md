@@ -1,10 +1,26 @@
 - `.toneMappingExposure : Number`
 色调映射的曝光级别。默认是1,调节整个场景的明暗程度： 白天黑夜的效果
+夜幕降临的效果用：toneMappingExposure,环境贴图必须是hrd文件   .exr文件
+实例：webgl_materials_cubemap_dynamic
+
 ```js
 renderer.toneMappingExposure = Math.pow( params.exposure, 5.0 )
+	new THREE.TextureLoader().load( 'textures/equirectangular.png', function ( texture ) {
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        texture.encoding = THREE.sRGBEncoding;
+        pngCubeRenderTarget = pmremGenerator.fromEquirectangular( texture );
+        pngBackground = texture;
+    } );
+    const pmremGenerator = new THREE.PMREMGenerator( renderer );
+    pmremGenerator.compileEquirectangularShader();
 ```
 - `.getContext`
 返回当前WebGL环境
+
+- `.anisotropy`
+```js
+texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+```
 
 ```js
 // 实例：webgl_buffergeometry_glbufferattribute

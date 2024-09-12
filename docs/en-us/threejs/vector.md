@@ -21,6 +21,29 @@ positions.setXYZ( 0, p.x, p.y, p.z );
 positions.setXYZ( 1, n.x, n.y, n.z );
 positions.needsUpdate = true;
 ```
+- `.fromBufferAttribute ( attribute : BufferAttribute, index : Integer )` : this  
+
+attribute - 来源的attribute。   
+index - 在attribute中的索引。  
+
+从attribute中设置向量的x值、y值、z值和w值
+```js
+const vertices = [];
+const positionAttribute = dodecahedronGeometry.getAttribute( 'position' );
+for ( let i = 0; i < positionAttribute.count; i ++ ) {
+    const vertex = new THREE.Vector3();
+    vertex.fromBufferAttribute( positionAttribute, i );
+    vertices.push( vertex );
+}
+const pointsMaterial = new THREE.PointsMaterial( {
+    color: 0x0080ff,
+    map: texture,
+    size: 1,
+    alphaTest: 0.5
+} );
+const pointsGeometry = new THREE.BufferGeometry().setFromPoints( vertices );
+const points = new THREE.Points( pointsGeometry, pointsMaterial );
+```
 
 - `.set ( x : Float, y : Float, z : Float ) : this`  
 设置该向量的x、y 和 z 分量。

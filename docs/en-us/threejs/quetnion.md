@@ -98,6 +98,54 @@ sun.setFromSphericalCoords( 1, phi, theta );
 
 ```
 
+2. 球坐标系位置计算
+- `Spherical`：球面坐标计算
+- `Matrix.lookAt ( eye : Vector3, target : Vector3, up : Vector3 ) : this `
+- `Quaternion.rotateTowards`
+
+
+示例：webgl_math_orientation_transform
+```js
+const spherical = new THREE.Spherical();
+spherical.theta = Math.random() * Math.PI * 2;
+spherical.phi = Math.acos( ( 2 * Math.random() ) - 1 );
+spherical.radius = 2;
+
+target.position.setFromSpherical( spherical );
+
+// compute target rotation
+
+rotationMatrix.lookAt( target.position, mesh.position, mesh.up );
+targetQuaternion.setFromRotationMatrix( rotationMatrix );
+
+function animate() {
+    requestAnimationFrame( animate );
+    const delta = clock.getDelta();
+    if ( ! mesh.quaternion.equals( targetQuaternion ) ) {
+        const step = speed * delta;
+        mesh.quaternion.rotateTowards( targetQuaternion,  step);
+        // 没有过度动画
+				// mesh.quaternion.copy( targetQuaternion );
+    }
+    renderer.render( scene, camera );
+}
+```
+
+构造一个旋转矩阵，从eye 指向 target，由向量 up 定向。 
+
+1. 已知起点物体对象mesh。获取mesh.position和mesh.up
+2. 已知朝向目前targe。获取了targe.position
+3. 构造matrix, t
+
+4. 通过构造的矩阵设置四元数Quaternion
+
+示例步骤：webgl_math_orientation_transform
+1. 使用方位角、俯仰构造球面上随机点
+2. 赋值给物体位置
+3. 通过target, origin构造旋转矩阵
+4. 物体对象四元数通过旋转矩阵确定姿态
+**确定物体mesh的姿态**
+
 ## 经纬度
 ### 经度：longitude
 

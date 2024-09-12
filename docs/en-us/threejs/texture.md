@@ -1,4 +1,16 @@
 ## 基本属性
+- `.envMap`： 环境贴图
+与环境贴图常在一起使用的是`mapping`属性
+```js
+const refractionCube = new THREE.CubeTextureLoader().load( urls );
+refractionCube.mapping = THREE.CubeRefractionMapping;
+```
+`- .refractionRatio : Float`
+空气的折射率（IOR）（约为1）除以材质的折射率。它与环境映射模式THREE.CubeRefractionMapping 和THREE.EquirectangularRefractionMapping一起使用。   折射率不应超过1。默认值为0.98。 取值【0，1】
+与`mapping`一起使用,值越大越像水晶/玻璃透明
+
+- `.reflectivity : Float`
+环境贴图对表面的影响程度; 见.combine。默认值为1，有效范围介于0（无反射）和1（完全反射）之间。
 
 - `colorSpace`: 纹理的颜色空间
 ```js
@@ -11,18 +23,34 @@ THREE.LinearSRGBColorSpace = "srgb-linear"
 - `map`：贴图
 漫反射材质、镜面反射材质需要光照才能显示出效果
 
+- `.mapping`： number
+图像将如何应用到物体（对象）上。默认值是THREE.UVMapping对象类型， 即UV坐标将被用于纹理映射。
+
+实例：webgl_materials_envmaps
+```js
+	if ( value ) {
+    textureEquirec.mapping = THREE.EquirectangularRefractionMapping;
+    textureCube.mapping = THREE.CubeRefractionMapping;
+    } else {
+    textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
+    textureCube.mapping = THREE.CubeReflectionMapping;
+    }
+    sphereMaterial.needsUpdate = true;
+```
+
 - `vertexColors ` : Boolean
 是否使用顶点着色。默认值为false。 此引擎支持RGB或者RGBA两种顶点颜色，取决于缓冲 attribute 使用的是三分量（RGB）还是四分量（RGBA）。
 
+
+> 纹理的三个核心API: offset\repeat\center
 ```js
 // 纹理平铺模式
 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 // 纹理像素
 texture.repeat.set( 0.008, 0.008 );
 ```
-**纹理平铺的基础原理：**
-图片完全铺开1：1repeat的值是（1，1）, 1:2即repeat（2，2）纹理效果是两倍图片效果，一半效果是（1/2, 1/2）
-总结时：缩小N倍
+**纹理重复基础原理：**
+repeat(x,y) 是指在x,y轴展开多少个纹理
 
 **offset偏移原理**
 当 repeat=（1，1）, 偏移x偏移0.1时，x轴纹理向左移动0.1个单位，y偏移0.1时，y轴向下偏移0.1个单位
@@ -88,6 +116,65 @@ texture.repeat.set( 0.008, 0.008 );
     renderer.clearDepth();
     renderer.render( sceneOrtho, cameraOrtho );
  ```
+
+ **环境贴图投影**
+运用于物体紧贴地面的场景
+ ```js
+import { GroundProjectedEnv } from 'three/addons/objects/GroundProjectedEnv.js';
+
+ env = new GroundProjectedEnv( envMap );
+env.scale.setScalar( 100 );
+scene.add( env );
+
+const shadow = new THREE.TextureLoader().load( 'models/gltf/ferrari_ao.png' );
+const mesh = new THREE.Mesh(
+    new THREE.PlaneGeometry( 0.655 * 4, 1.3 * 4 ),
+    new THREE.MeshBasicMaterial( {
+        map: shadow, blending: THREE.MultiplyBlending, toneMapped: false, transparent: true
+    } )
+);
+mesh.rotation.x = - Math.PI / 2;
+mesh.renderOrder = 2;
+carModel.add( mesh );
+
+function render() {
+    renderer.render( scene, camera );
+    env.radius = params.radius;
+    env.height = params.height;
+}
+```
+
+node
+webgl_materials_lightmap
+
+
+glTF目前仅支持切线空间法线贴图
+```js
+new GLTFLoader().load( 'models/gltf/Nefertiti/Nefertiti.glb', function ( gltf ) {
+    gltf.scene.traverse( function ( child ) {
+        if ( child.isMesh ) {
+            console.log(child)
+            // glTF currently supports only tangent-space normal maps.
+            // this model has been modified to demonstrate the use of an object-space normal map.
+            child.material.normalMapType = THREE.ObjectSpaceNormalMap;
+            // attribute normals are not required with an object-space normal map. remove them.
+            child.geometry.deleteAttribute( 'normal' );
+            child.material.side = THREE.DoubleSide;
+            child.scale.multiplyScalar( 0.5 );
+            // 移动物体位置
+            new THREE.Box3().setFromObject( child ).getCenter( child.position ).multiplyScalar( - 1 );
+            scene.add( child );
+        }
+    } );
+    render();
+} );
+```
+
+材质实例：webgl_materials_physical_clearcoat
+有法线贴图图片
+
+材质实例：webgl_materials_physical_reflectivity
+钻石材质
 
 ## 代码示例
 ### 星空图

@@ -42,6 +42,7 @@ TrackballControls 与 OrbitControls 相类似。然而，它不能恒定保持�
 
 ## 第一人称控制器FirstPersonControls
 鼠标左右移动时，相机加速移动
+实例：webgl_geometry_dynamic
 
 - `.lookSpeed : Number`
 环视速度。默认为0.005。

@@ -203,3 +203,17 @@ scene.remove( mesh );
 // 实例：webgl_instancing_performance
 dummy.rotation.y = ( Math.sin( x / 4 + time ) + Math.sin( y / 4 + time ) + Math.sin( z / 4 + time ) );
 ```
+
+2. 根据子对象找到父对象,然后移除自己
+
+```js
+  if ( intersections.length > 0 ) {
+        // determine closest intersection and highlight the respective 3D object
+        // 当有多个重叠物体被捕获后，确定里屏幕最近的物体
+        intersections.sort( sortIntersections );
+        intersections[ 0 ].object.add( hitbox );
+    } else {
+        const parent = hitbox.parent;
+        if ( parent ) parent.remove( hitbox );
+    }
+```

@@ -9,7 +9,7 @@ euler -- 指定了旋转量的欧拉角。
 与mesh.rotation.copy(Euler)方法相同
 
 
-## 创建一个欧拉角表示特定旋转角度
+1. 创建一个欧拉角表示特定旋转角度
 ```js
 //创建一个欧拉角对象，表示绕x轴旋转60度
 const Euler = new THREE.Euler();
@@ -21,7 +21,7 @@ Euler.z = Math.PI / 3;//绕z轴旋转60度
 
 ```
 
-## 欧拉角改变物体姿态角度(.rotation属性)
+2. 欧拉角改变物体姿态角度(.rotation属性)
 threejs模型对象都有一个角度属性`.rotation`，`.rotation`的值其实就是欧拉角对象Euler。你可以改变.rotation对应欧拉角x、y或z属性值，查看物体姿态角度变化
 
 ```js
@@ -35,7 +35,7 @@ fly.rotation.copy(Euler);
 
 ```
 
-## 物体旋转顺序`.order`
+3. 物体旋转顺序`.order`
 
 物体先后绕x、y、z轴旋转，旋转的顺序不同，物体的姿态角度也可能不同。
 
@@ -51,3 +51,15 @@ Euler.y = Math.PI / 3;
 Euler.order = 'XYZ';
 fly.rotation.copy(Euler);
 ```
+
+## 方位角和俯仰角
+俯仰角 = degToRed(90 - 高度) [0-90]
+方位角 = azimuth [-180, 180]
+
+示例：webgl_shaders_sky
+```js
+const phi = THREE.MathUtils.degToRad( 90 - effectController.elevation );
+const theta = THREE.MathUtils.degToRad( effectController.azimuth );
+sun.setFromSphericalCoords( 1, phi, theta );
+```
+设置球面坐标系，模拟天空上的物体的坐标点

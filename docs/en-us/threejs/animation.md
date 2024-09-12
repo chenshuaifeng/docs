@@ -48,7 +48,7 @@ mixer.update(delta)
 
 动画和MESH是独立得，通过混合函数mixer进行关联绑定
 
-## AnimationAction
+**AnimationAction**
 通过mixer调用clipAcition方法传入clip返回的，控制动画的方法，包括许多属性和方法
 
 - `.loop : Number`
@@ -89,28 +89,12 @@ instance多实例动画
 2. 给Mixer监听动作动画播放完毕fiNish事件
 3. 最后在执行1/2动作恢复1动画播放
 
-## 动画算法
-
-### 时间算法
-1. 速率控制器  
-```js
-const time = Date.now();
-const looptime = rate * 1000;
-const t = ( time % looptime ) / looptime;
-// 0 < t < 1
-```
-rate速率，表示`t` **从0~1所用时间为多少秒，数值越大，时间越长**
-
-
-## 模型动画
-
+总结：
 加载的是模型场景
 AnimationMixer(gltf.scene)
 
 分段加载AnimationClip
 
-
-一个模拟动画的算法
 
 
 ## 控制动画
@@ -198,10 +182,11 @@ AnimationActions 用来调度存储在AnimationClips中的动画。
 如果 clampWhenFinished 值设为true, 那么动画将在最后一帧之后自动暂停（paused）
 
 如果 clampWhenFinished 值为false, enabled 属性值将在动作的最后一次循环完成之后自动改为false, 那么这个动作以后就不会再执行。
-## AnimationUtils
+- `AnimationUtils`
 一个提供各种动画辅助方法的对象，内部使用。
 
-## AnimationObjectGroup动画对象
+ - `AnimationObjectGroup`动画对象  
+
 用于成组的物体动画，接受一组mesh
 ```js
 animationGroup.add( mesh );
@@ -256,6 +241,14 @@ lightPillar.quaternion.setFromUnitVectors(
     mesh.position.y = 700 * Math.sin( r );
 ```
 
+**动画速率控制的技巧**
+```js
+const time = Date.now();
+const looptime = rate * 1000;
+const t = ( time % looptime ) / looptime;
+// 0 < t < 1
+```
+rate速率，表示`t` **从0~1所用时间为多少秒，数值越大，时间越长**
 
 ## 相机运动算法
 ```js
@@ -368,47 +361,7 @@ function animate() {
     }
 ```
 
-## tween
 
-根据点的位置做动画Positions:[[x,y,z], [x,y,z], [x,y,z], [x,y,z]]
-```js
-	function transition() {
-                // 当前组的索引，一共有四组动画, offset等于每组动画点的起始索引
-				const offset = current * particlesTotal * 3;
-				const duration = 2000;
-                // i点的索引  j+=3点等于点在positions中的索引 
-				for ( let i = 0, j = offset; i < particlesTotal; i ++, j += 3 ) {
-
-					const object = objects[ i ];
-
-					new TWEEN.Tween( object.position )
-						.to( {
-							x: positions[ j ],
-							y: positions[ j + 1 ],
-							z: positions[ j + 2 ]
-						}, Math.random() * duration + duration )
-						.easing( TWEEN.Easing.Exponential.InOut )
-						.start();
-
-				}
-
-				new TWEEN.Tween( this )
-					.to( {}, duration * 3 )
-					.onComplete( transition )
-					.start();
-
-				current = ( current + 1 ) % 4;
-
-			}
-```
-
-
-## Scale
-
-一个放大缩小的动画
-```js
-object.scale.setScalar( Math.cos( time ) * 0.125 + 0.875 );
-```
 
 ## 动画技巧
 1. 自身旋转rotation
@@ -427,10 +380,7 @@ object.scale.setScalar( Math.cos( time ) * 0.125 + 0.875 );
 dummy.rotation.y = ( Math.sin( x / 4 + time ) + Math.sin( y / 4 + time ) + Math.sin( z / 4 + time ) );
 ```
 
-
-
-## Time笔记
-1. `const time = clock.getElapsedTime();`
+2. `const time = clock.getElapsedTime();`
 获取自时钟启动后的秒数,
 是一个从零开始，按照帧率递增得数值，线性增加得值
 
@@ -463,131 +413,30 @@ const t = i / ( hilbertPoints.length * subdivisions );
 > 通过进度条控制动画的播放进度
 
 ```js
-	function setupControls( animation ) {
-
-				// Lottie animation API
-				// https://airbnb.io/lottie/#/web
-
-				// There are a few undocumented properties:
-				// console.log( animation );
-
-				const scrubber = document.getElementById( 'scrubber' );
-				scrubber.max = animation.totalFrames;
-
-				scrubber.addEventListener( 'pointerdown', function () {
-
-					animation.pause();
-
-				} );
-
-				scrubber.addEventListener( 'pointerup', function () {
-
-					animation.play();
-
-				} );
-
-				scrubber.addEventListener( 'input', function () {
-
-					animation.goToAndStop( parseFloat( scrubber.value ), true );
-
-				} );
-
-				animation.addEventListener( 'enterFrame', function () {
-
-					scrubber.value = animation.currentFrame;
-
-				} );
-
-			}
-```
-
-## 补间动画TweenJS
-移动和旋转同步进行
-
-移动旋转移动旋转移动，链式顺序进行
-
-```js
-function createSwordMan() {
-  new MTLLoader().load('./chr_sword.mtl', function (materials) {
-    materials.preload();
-    new OBJLoader().setMaterials(materials).loadAsync('./chr_sword.obj').then((group) => {
-      const swordMan = group.children[0];
-
-      swordMan.position.x = -15
-      swordMan.position.z = -15
-
-      swordMan.scale.x = 7;
-      swordMan.scale.y = 7;
-      swordMan.scale.z = 7;
-
-      swordMan.castShadow = true
-      swordMan.receiveShadow = true
-
-      const start = { x: -15, z: -15 }
-      const moveto1 = { x: -15, z: 15 }
-      const moveto2 = { x: -35, z: 15 }
-      const moveto3 = { x: -35, z: -15 }
-      const moveto4 = { x: -15, z: -15 }
-
-      const rotStart = { rotY: 0 }
-      const rotto1 = { rotY: - Math.PI / 2 }
-      const rotto2 = { rotY: - Math.PI }
-      const rotto3 = { rotY: - Math.PI * (3 / 2) }
-      const rotto4 = { rotY: - Math.PI * 2 }
-
-      var tweenRot1 = new TWEEN.Tween(rotStart).to(rotto1, 400)
-      var tweenRot2 = new TWEEN.Tween(rotStart).to(rotto2, 400)
-      var tweenRot3 = new TWEEN.Tween(rotStart).to(rotto3, 400)
-      var tweenRot4 = new TWEEN.Tween(rotStart).to(rotto4, 400)
-
-      var tweenMove1 = new TWEEN.Tween(start).to(moveto1, 2000)
-      var tweenMove2 = new TWEEN.Tween(start).to(moveto2, 2000)
-      var tweenMove3 = new TWEEN.Tween(start).to(moveto3, 2000)
-      var tweenMove4 = new TWEEN.Tween(start).to(moveto4, 2000)
-
-      tweenMove1.chain(tweenRot1)
-      tweenRot1.chain(tweenMove2)
-      tweenMove2.chain(tweenRot2)
-      tweenRot2.chain(tweenMove3)
-      tweenMove3.chain(tweenRot3)
-      tweenRot3.chain(tweenMove4)
-      tweenMove4.chain(tweenRot4)
-      tweenRot4.chain(tweenMove1)
-
-      const updatePos = function (object: {
-        x: number;
-        z: number;
-      }, elapsed: number) {
-        swordMan.position.x = object.x;
-        swordMan.position.z = object.z;
-      }
-      tweenMove1.onUpdate(updatePos)
-      tweenMove2.onUpdate(updatePos)
-      tweenMove3.onUpdate(updatePos)
-      tweenMove4.onUpdate(updatePos)
-
-      const updateRot = function (object: {
-        rotY: number;
-      }, elapsed: number) {
-        swordMan.rotation.y = object.rotY;
-      }
-      tweenRot1.onUpdate(updateRot)
-      tweenRot2.onUpdate(updateRot)
-      tweenRot3.onUpdate(updateRot)
-      tweenRot4.onUpdate(updateRot)
-
-      tweenMove1.start()
-
-      scene.add(swordMan)
-    })
-  });
+function setupControls( animation ) {
+    const scrubber = document.getElementById( 'scrubber' );
+    scrubber.max = animation.totalFrames;
+    scrubber.addEventListener( 'pointerdown', function () {
+        animation.pause();
+    } );
+    scrubber.addEventListener( 'pointerup', function () {
+        animation.play();
+    } );
+    scrubber.addEventListener( 'input', function () {
+        animation.goToAndStop( parseFloat( scrubber.value ), true );
+    } );
+    animation.addEventListener( 'enterFrame', function () {
+        scrubber.value = animation.currentFrame;
+    } );
 }
 ```
-**取模运算%**
-%1
-由0~1然后 再0~1
 
-## Morph动画权重
+一个放大缩小的动画
+```js
+object.scale.setScalar( Math.cos( time ) * 0.125 + 0.875 );
+```
+
+### Morph动画权重
 使用bufferGeometry+morph动画权重
 步骤：
 1. 生成morph顶点数据
@@ -644,9 +493,113 @@ t += delta * 0.5;
     mapBg.offset.set( ox, oy );
 ```
 
-## 动态行驶的车
-webgl_materials_car
-运动分析
+实例：webgl_materials_car
+动态行驶的车，运动分析
+
+## 补间动画TweenJS
+移动和旋转同步进行
+
+移动旋转移动旋转移动，链式顺序进行
+
+```js
+function createSwordMan() {
+  new MTLLoader().load('./chr_sword.mtl', function (materials) {
+    materials.preload();
+    new OBJLoader().setMaterials(materials).loadAsync('./chr_sword.obj').then((group) => {
+      const swordMan = group.children[0];
+      swordMan.position.x = -15
+      swordMan.position.z = -15
+      swordMan.scale.x = 7;
+      swordMan.scale.y = 7;
+      swordMan.scale.z = 7;
+      swordMan.castShadow = true
+      swordMan.receiveShadow = true
+      const start = { x: -15, z: -15 }
+      const moveto1 = { x: -15, z: 15 }
+      const moveto2 = { x: -35, z: 15 }
+      const moveto3 = { x: -35, z: -15 }
+      const moveto4 = { x: -15, z: -15 }
+      const rotStart = { rotY: 0 }
+      const rotto1 = { rotY: - Math.PI / 2 }
+      const rotto2 = { rotY: - Math.PI }
+      const rotto3 = { rotY: - Math.PI * (3 / 2) }
+      const rotto4 = { rotY: - Math.PI * 2 }
+      var tweenRot1 = new TWEEN.Tween(rotStart).to(rotto1, 400)
+      var tweenRot2 = new TWEEN.Tween(rotStart).to(rotto2, 400)
+      var tweenRot3 = new TWEEN.Tween(rotStart).to(rotto3, 400)
+      var tweenRot4 = new TWEEN.Tween(rotStart).to(rotto4, 400)
+      var tweenMove1 = new TWEEN.Tween(start).to(moveto1, 2000)
+      var tweenMove2 = new TWEEN.Tween(start).to(moveto2, 2000)
+      var tweenMove3 = new TWEEN.Tween(start).to(moveto3, 2000)
+      var tweenMove4 = new TWEEN.Tween(start).to(moveto4, 2000)
+      tweenMove1.chain(tweenRot1)
+      tweenRot1.chain(tweenMove2)
+      tweenMove2.chain(tweenRot2)
+      tweenRot2.chain(tweenMove3)
+      tweenMove3.chain(tweenRot3)
+      tweenRot3.chain(tweenMove4)
+      tweenMove4.chain(tweenRot4)
+      tweenRot4.chain(tweenMove1)
+      const updatePos = function (object: {
+        x: number;
+        z: number;
+      }, elapsed: number) {
+        swordMan.position.x = object.x;
+        swordMan.position.z = object.z;
+      }
+      tweenMove1.onUpdate(updatePos)
+      tweenMove2.onUpdate(updatePos)
+      tweenMove3.onUpdate(updatePos)
+      tweenMove4.onUpdate(updatePos)
+      const updateRot = function (object: {
+        rotY: number;
+      }, elapsed: number) {
+        swordMan.rotation.y = object.rotY;
+      }
+      tweenRot1.onUpdate(updateRot)
+      tweenRot2.onUpdate(updateRot)
+      tweenRot3.onUpdate(updateRot)
+      tweenRot4.onUpdate(updateRot)
+      tweenMove1.start()
+      scene.add(swordMan)
+    })
+  });
+}
+```
+
+根据点的位置做动画Positions:[[x,y,z], [x,y,z], [x,y,z], [x,y,z]]
+```js
+	function transition() {
+                // 当前组的索引，一共有四组动画, offset等于每组动画点的起始索引
+				const offset = current * particlesTotal * 3;
+				const duration = 2000;
+                // i点的索引  j+=3点等于点在positions中的索引 
+				for ( let i = 0, j = offset; i < particlesTotal; i ++, j += 3 ) {
+
+					const object = objects[ i ];
+
+					new TWEEN.Tween( object.position )
+						.to( {
+							x: positions[ j ],
+							y: positions[ j + 1 ],
+							z: positions[ j + 2 ]
+						}, Math.random() * duration + duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.start();
+
+				}
+
+				new TWEEN.Tween( this )
+					.to( {}, duration * 3 )
+					.onComplete( transition )
+					.start();
+
+				current = ( current + 1 ) % 4;
+
+			}
+```
+
+
 
 
 

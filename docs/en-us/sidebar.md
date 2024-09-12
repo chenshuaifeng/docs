@@ -9,6 +9,7 @@
     - [第一、三人称漫游(下)](en-us/threejs/roam3)
     - [纹理贴图Texture](en-us/threejs/texture)
     - [缓冲几何体BufferGeometry](en-us/threejs/buffergeometry)
+    - [几何体Geometry](en-us/threejs/geometry)
     - [自定义属性BufferAttribute](en-us/threejs/bufferattribute)
     - [物体Mesh](en-us/threejs/mesh)
     - [线Line](en-us/threejs/line)

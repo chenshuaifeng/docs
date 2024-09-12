@@ -228,72 +228,29 @@ lineText.add( lineMesh );
 
 	}
 ```
-
-### 人物粒子下落效果要素
-speed：下落速度
-direction： 运动方向
-start： 开始的位置
-
-次要要素：
-delay: 延迟时间
-
-时间动画中运动
-
-运动分析：物体由初始位置start运动到0处， 当start=0时，物体的方向改变,在运动的**过程中改变顶点的位置**
-
-
-位移 = 速度 * 时间
+## 3DMLoader
 ```js
-if ( data.direction < 0 ) {
+import { Rhino3dmLoader } from 'three/addons/loaders/3DMLoader.js';
 
-	if ( py > 0 ) {
+const loader = new Rhino3dmLoader();
+loader.setLibraryPath( 'https://cdn.jsdelivr.net/npm/rhino3dm@7.15.0/' );
+loader.load( 'models/3dm/Rhino_Logo.3dm', function ( object ) {
+scene.add( object );
+} );
 
-		positions.setXYZ(
-			i,
-			px + 1.5 * ( 0.50 - Math.random() ) * data.speed * delta,
-			py + 3.0 * ( 0.25 - Math.random() ) * data.speed * delta,
-			pz + 1.5 * ( 0.50 - Math.random() ) * data.speed * delta
-		);
-
-	} else {
-
-		data.verticesDown += 1;
-	}
-}
 ```
-
-往上走的时候 点的位置pos = |当前位置 - 初始化位置 |
-
+## TDSLoader
+加载`.3ds`文件
 ```js
-// rising up
-if ( data.direction > 0 ) {
-
-	const ix = initialPositions.getX( i );
-	const iy = initialPositions.getY( i );
-	const iz = initialPositions.getZ( i );
-
-	const dx = Math.abs( px - ix );
-	const dy = Math.abs( py - iy );
-	const dz = Math.abs( pz - iz );
-
-	const d = dx + dy + dx;
-
-	if ( d > 1 ) {
-
-		positions.setXYZ(
-			i,
-			px - ( px - ix ) / dx * data.speed * delta * ( 0.85 - Math.random() ),
-			py - ( py - iy ) / dy * data.speed * delta * ( 1 + Math.random() ),
-			pz - ( pz - iz ) / dz * data.speed * delta * ( 0.85 - Math.random() )
-		);
-
-	} else {
-
-		data.verticesUp += 1;
-
-	}
-
-}
+loader.load( 'models/3ds/portalgun/portalgun.3ds', function ( object ) {
+	object.traverse( function ( child ) {
+		if ( child.isMesh ) {
+			child.material.specular.setScalar( 0.1 );
+			child.material.normalMap = normal;
+		}
+	} );
+	scene.add( object );
+} );
 ```
 
 
