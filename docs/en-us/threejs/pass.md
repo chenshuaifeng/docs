@@ -102,15 +102,35 @@ import { AfterimagePass } from 'three/addons/postprocessing/AfterimagePass.js';
 
 ```
 ##  RenderTransitionPass
-转场效果的后期处理
-transition 动画起始时间显示的场景；
-动画结束时间显示的场景；
+转场效果：
+1. 初始化场景: 显示多个场景,为转场场景提供材质贴图
 ```js
-import { RenderTransitionPass } from 'three/addons/postprocessing/RenderTransitionPass.js';
+// 场景中生成渲染材质
+this.fbo = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight );
 
-renderTransitionPass = new RenderTransitionPass( fxSceneA.scene, fxSceneA.camera, fxSceneB.scene, fxSceneB.camera );
-renderTransitionPass.setTexture( textures[ 0 ] );
+renderer.setRenderTarget( this.fbo );
+renderer.clear();
+renderer.render( scene, camera );
+```
+2. 转场场景：提供转场动效；从渲染场景中获取转场材质；正交相机视图
+```js
+const geometry = new THREE.PlaneGeometry( window.innerWidth, window.innerHeight );
 
+material.uniforms.tDiffuse1.value = sceneA.fbo.texture;
+
+```   
+3. 渲染动画transition: 启动补间动画；Render渲染初始化场景；
+
+tiem=1：render scene1
+time=0：render scene2
+0 < time < 1：render scene
+```js
+sceneA.render( delta, true );
+sceneB.render( delta, true );
+
+renderer.setRenderTarget( null );
+renderer.clear();
+renderer.render( scene, camera );
 ```
 
 ## 粒子特效
@@ -123,3 +143,6 @@ import { FilmPass } from 'three/addons/postprocessing/FilmPass.js';
 import { FocusShader } from 'three/addons/shaders/FocusShader.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 ```
+
+有用的pass
+1. webgl_postprocessing_unreal_bloom

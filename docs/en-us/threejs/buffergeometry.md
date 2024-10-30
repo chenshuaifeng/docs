@@ -3,17 +3,19 @@ BufferGeometry
 
 ## API
 
+- `.morphAttributes`: Array
+变形属性的数组
+
 - `.computeVertexNormals () : undefined`
 通过面片法向量的平均值计算每个顶点的法向量。
+计算顶点法向量是为顶点着色
 ```js
 	new THREE.BufferGeometryLoader()
 				.setPath( 'models/json/' )
 				.load( 'suzanne_buffergeometry.json', function ( geometry ) {
-
 					material = new THREE.MeshNormalMaterial();
-
 					geometry.computeVertexNormals();
-        }
+        })
 ```
 导入bufferGeometry的json文件时，需要计算顶点法向量
 

@@ -104,4 +104,16 @@ const image = document.createElement( 'img' );
 				}
 ```
 
+## Canvas与CSS3D相结合
+示例:css3d_molecules
+
+1. 使用Canvas+图片创建自定义图片
+2. 单独给图片添加颜色
+
+> 如何将所有的小球用线连起来  
+
+positionBonds存储着所有的连线关系   
+两个点确定一条线,分别是i和i+1
+
+
 

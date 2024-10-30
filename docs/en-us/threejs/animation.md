@@ -124,7 +124,9 @@ THREE.LoopPingPong - 重复次数为repetitions的值, 且像乒乓球一样在�
 
 
 ### 单步调试动画1
-对动画的更新时间进行控制
+
+单步模式的核心是控制动画的更新时间
+
 ```js
 // 核心控制更新时间
 mixer.update( mixerUpdateDelta );
@@ -141,7 +143,8 @@ if ( singleStepMode ) {
 
 > AnimationAction
 AnimationActions 用来调度存储在AnimationClips中的动画。
-### 单步调式动画1
+### 动画权重
+权重是从[0, 1]
 在播放之前`action.play()`,设置动画的步骤
 ```js
     const baseActions = {
@@ -165,6 +168,21 @@ AnimationActions 用来调度存储在AnimationClips中的动画。
     }
     // weight权重，多个动画的权重
 ```
+- `.setEffectiveWeight ( weight : Number ) : this`
+设置权重（weight）以及停止所有淡入淡出。该方法可以链式调用。
+
+实例：webgl_loader_bvh
+```js
+// play animation
+mixer = new THREE.AnimationMixer( skeletonHelper );
+mixer.clipAction( result.clip ).setEffectiveWeight( 1.0 ).play();
+```
+
+如果启用属性（enabled）为true, 那么有效权重(一个内部属性) 也会被设为该值; 否则有效权重 (直接影响当前动画)将会被设为0.
+
+说明: 如果该方法将权重weight值设为0，启用值enabled不会被自动改为false。
+
+
 
 `.fadeOut ( durationInSeconds : Number ) : this`
 在传入的时间间隔内，逐渐将此动作的权重（weight）由1降至0。此方法可链式调用。

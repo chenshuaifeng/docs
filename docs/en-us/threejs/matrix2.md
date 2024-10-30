@@ -72,6 +72,20 @@ mesh.updateMatrix();
 console.log('本地矩阵',mesh.matrix);
 ```
 
+示例:css3d_molecules
+蛋白质示例中更新线的矩阵信息
+1. 矩阵的绕轴旋转角度物体的矩阵
+```js
+const axis = tmpVec2.set( 0, 1, 0 ).cross( tmpVec1 );
+const radians = Math.acos( tmpVec3.set( 0, 1, 0 ).dot( tmpVec4.copy( tmpVec1 ).normalize() ) );
+
+const objMatrix = new THREE.Matrix4().makeRotationAxis( axis.normalize(), radians );
+object.matrix.copy( objMatrix );
+object.quaternion.setFromRotationMatrix( object.matrix );
+
+object.matrixAutoUpdate = false;
+object.updateMatrix();
+```
 
 
 ## 代码示例
@@ -89,3 +103,80 @@ camera.updateMatrixWorld();
 tmpM.makeRotationFromQuaternion( tmpQ );
 
 
+算法给正方形内部增加1
+```js
+let curr = 0;
+			const countPerRow = 4;
+			const countPerSlice = countPerRow * countPerRow;
+			const sliceCount = 4;
+			const totalCount = sliceCount * countPerSlice;
+			const margins = 8;
+
+			const perElementPaddedSize = ( INITIAL_CLOUD_SIZE - margins ) / countPerRow;
+			const perElementSize = Math.floor( ( INITIAL_CLOUD_SIZE - 1 ) / countPerRow );
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				const time = performance.now();
+				if ( time - prevTime > 1500.0 && curr < totalCount ) {
+
+					const position = new THREE.Vector3(
+						Math.floor( curr % countPerRow ) * perElementSize + margins * 0.5,
+						( Math.floor( ( ( curr % countPerSlice ) / countPerRow ) ) ) * perElementSize + margins * 0.5,
+						Math.floor( curr / countPerSlice ) * perElementSize + margins * 0.5
+					).floor();
+
+					const maxDimension = perElementPaddedSize - 1;
+					const box = new THREE.Box3( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( maxDimension, maxDimension, maxDimension ) );
+					const scaleFactor = ( Math.random() + 0.5 ) * 0.5;
+					const source = generateCloudTexture( perElementPaddedSize, scaleFactor );
+
+					renderer.copyTextureToTexture3D( box, position, source, cloudTexture );
+
+					prevTime = time;
+
+					curr ++;
+
+				}
+
+				mesh.material.uniforms.cameraPos.value.copy( camera.position );
+				// mesh.rotation.y = - performance.now() / 7500;
+
+				mesh.material.uniforms.frame.value ++;
+
+				renderer.render( scene, camera );
+
+			}
+            function generateCloudTexture( size, scaleFactor = 1.0 ) {
+
+				const data = new Uint8Array( size * size * size );
+				const scale = scaleFactor * 10.0 / size;
+
+				let i = 0;
+				const perlin = new ImprovedNoise();
+				const vector = new THREE.Vector3();
+
+				for ( let z = 0; z < size; z ++ ) {
+
+					for ( let y = 0; y < size; y ++ ) {
+
+						for ( let x = 0; x < size; x ++ ) {
+
+							const dist = vector.set( x, y, z ).subScalar( size / 2 ).divideScalar( size ).length();
+							const fadingFactor = ( 1.0 - dist ) * ( 1.0 - dist );
+							data[ i ] = ( 128 + 128 * perlin.noise( x * scale / 1.5, y * scale, z * scale / 1.5 ) ) * fadingFactor;
+
+							i ++;
+
+						}
+
+					}
+
+				}
+
+				return new THREE.Data3DTexture( data, size, size, size );
+
+			}
+            ```

@@ -17,6 +17,7 @@
 // Normal时单位向量，垂直于平面的法线
 ```
 
+
 distance —— 射线投射原点和相交部分之间的距离。  
 point —— 相交部分的点（世界坐标）  
 
@@ -89,3 +90,10 @@ for ( let i = 0, il = objects.length; i < il; i ++ ) {
  2.1 遍历物体对象，获取每个对象下的obb  
  2.2 如果物体对象obb与光线相交，赋值相交点  
  `obb.intersectRay( ray, intersectionPoint )`
+
+
+实例：webgl_interactive_lines
+线捕获时点触发的范围：
+ ```js
+ raycaster.params.Line.threshold = 3;
+ ```

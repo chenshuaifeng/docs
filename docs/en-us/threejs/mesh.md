@@ -99,7 +99,7 @@ for ( let z = - 2; z <= 2; ++ z )
 
 
 ## 代码技巧
-一个将物体移动到平面四角得方法
+在屏幕坐标系下物体的位置关系
 ```js
 	function updateSpritePosition() {
 
@@ -184,17 +184,68 @@ for(let i=0;i<amount;i++){
 
 ## 销毁mesh
 mesh的销毁过程
+1. 通过自身先找到父级
+2. 然后使用remove方法移除自身
+
+需要销毁的东西
 1. Gemoetry销毁
 2. Material销毁
 3. Material.map销毁
 4. 从场景中移除mesh
 
 ```js
+// mesh销毁后就是undefined
+if ( mesh !== undefined ) {
+    parent.remove( mesh );
+    mesh.geometry.dispose();
+}
 const mesh = meshes[ i ];
 mesh.material.dispose();
 mesh.geometry.dispose();
 
 scene.remove( mesh );
+```
+
+通过模型名称获取模型实例
+```js
+loader.load( 'models/gltf/ferrari.glb', function ( gltf ) {
+
+					const carModel = gltf.scene.children[ 0 ];
+					console.log(carModel);
+					
+					carModel.getObjectByName( 'body' ).material = bodyMaterial;
+
+					carModel.getObjectByName( 'rim_fl' ).material = detailsMaterial;
+					carModel.getObjectByName( 'rim_fr' ).material = detailsMaterial;
+					carModel.getObjectByName( 'rim_rr' ).material = detailsMaterial;
+					carModel.getObjectByName( 'rim_rl' ).material = detailsMaterial;
+					carModel.getObjectByName( 'trim' ).material = detailsMaterial;
+
+					carModel.getObjectByName( 'glass' ).material = glassMaterial;
+
+					wheels.push(
+						carModel.getObjectByName( 'wheel_fl' ),
+						carModel.getObjectByName( 'wheel_fr' ),
+						carModel.getObjectByName( 'wheel_rl' ),
+						carModel.getObjectByName( 'wheel_rr' )
+					);
+
+					// shadow
+					const mesh = new THREE.Mesh(
+						new THREE.PlaneGeometry( 0.655 * 4, 1.3 * 4 ),
+						new THREE.MeshBasicMaterial( {
+							map: shadow, blending: THREE.MultiplyBlending, toneMapped: false, transparent: true
+						} )
+					);
+					mesh.rotation.x = - Math.PI / 2;
+					mesh.renderOrder = 2;
+					carModel.add( mesh );
+
+					scene.add( carModel );
+
+				} );
+
+			}
 ```
 
 ## 知识技能

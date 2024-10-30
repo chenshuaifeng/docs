@@ -40,5 +40,6 @@
     - [通道Pass](en-us/threejs/pass)
     - [计算](en-us/threejs/comput)
     - [lookAt](en-us/threejs/looat)
+    - [styudy](en-us/threejs/study)
 - WebGL
     - [WebGL开发步骤](en-us/webgl/index)

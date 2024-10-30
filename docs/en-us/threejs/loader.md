@@ -15,6 +15,8 @@ loader.load( 'models/gltf/Soldier.glb', function ( gltf ) {
 
 CCDIKSolver 用 CCD 算法解决逆运动学问题。 CCDIKSolver 设计用于与 SkinnedMesh 配合使用，但也可与 MMDLoader 或 GLTFLoader 配合使用。
 
+traverse遍历得是Group
+
 ```js
 gltf.scene.traverse( n => {
 // 保存物体对象
@@ -38,6 +40,23 @@ const targetPosition = OOI.sphere.position.clone(); // for orbit controls
 OOI.hand_l.attach( OOI.sphere );
 ```
 
+## OBJLoader
+实例：webgl_materials_channels
+```js
+const loader = new OBJLoader();
+loader.load( 'models/obj/ninja/ninjaHead_Low.obj', function ( group ) {
+	const geometry = group.children[ 0 ].geometry;
+	geometry.attributes.uv2 = geometry.attributes.uv;
+	geometry.center();
+	mesh = new THREE.Mesh( geometry, materialNormal );
+	mesh.scale.multiplyScalar( 25 );
+	mesh.userData.matrixWorldPrevious = new THREE.Matrix4(); // for velocity
+	scene.add( mesh );
+} );
+```
+1. 开启Geometry第二UV, UV是AttributeGeometry属性
+2. 将边界几何体居中
+
 ## FontLoader文字加载器
 fontLoader与textGeometry一起使用
 
@@ -57,9 +76,8 @@ import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
 ```
 
 ## `PBR`分子式
-
-`PDBLoader`加载PDB模型
-文件结构
+示例：css3d_molecules
+`PDBLoader`加载PDB模型，文件结构：
 ```js
 {
 	geometryAtoms: 物体位置、颜色，表示原子
@@ -72,14 +90,70 @@ import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
 color.r = Colors.get(i)
 // 在该向量与传入的向量v之间的线性插值，alpha是沿着线的长度的百分比 —— alpha = 0 时表示的是当前向量，alpha = 1 时表示的是所传入的向量v。
 position.lerp(end, 0.5)
-
 // 在向量的两个点中间进行线性插值
 // 线段不够长,延长线段
 scale.z=start.distanceTo(end)*10
-
 // 改变线段方向
 lookAt(end)
+```
+计算包围盒的质心远点
+```js
+geometryAtoms.computeBoundingBox();
+geometryAtoms.boundingBox.getCenter( offset ).negate();
+geometryAtoms.translate( offset.x, offset.y, offset.z );
+geometryBonds.translate( offset.x, offset.y, offset.z );
+```
 
+在多个点中进行链接
+1. 两个点组成一条线
+2. 一个点可以与多个线相连
+
+```js
+for ( let i = 0; i < positionBonds.count; i += 2 ) {
+	start.fromBufferAttribute( positionBonds, i );
+	end.fromBufferAttribute( positionBonds, i + 1 );
+	start.multiplyScalar( 75 );
+	end.multiplyScalar( 75 );
+	tmpVec1.subVectors( end, start );
+	const bondLength = tmpVec1.length() - 50;
+	let bond = document.createElement( 'div' );
+	bond.className = 'bond';
+	bond.style.height = bondLength + 'px';
+	let object = new CSS3DObject( bond );
+	object.position.copy( start );
+	object.position.lerp( end, 0.5 );
+	object.userData.bondLengthShort = bondLength + 'px';
+	object.userData.bondLengthFull = ( bondLength + 55 ) + 'px';
+	const axis = tmpVec2.set( 0, 1, 0 ).cross( tmpVec1 );
+	const radians = Math.acos( tmpVec3.set( 0, 1, 0 ).dot( tmpVec4.copy( tmpVec1 ).normalize() ) );
+	const objMatrix = new THREE.Matrix4().makeRotationAxis( axis.normalize(), radians );
+	object.matrix.copy( objMatrix );
+	object.quaternion.setFromRotationMatrix( object.matrix );
+	object.matrixAutoUpdate = false;
+	object.updateMatrix();
+	root.add( object );
+	objects.push( object );
+	bond = document.createElement( 'div' );
+	bond.className = 'bond';
+	bond.style.height = bondLength + 'px';
+	const joint = new THREE.Object3D( bond );
+	joint.position.copy( start );
+	joint.position.lerp( end, 0.5 );
+	joint.matrix.copy( objMatrix );
+	joint.quaternion.setFromRotationMatrix( joint.matrix );
+	joint.matrixAutoUpdate = false;
+	joint.updateMatrix();
+	object = new CSS3DObject( bond );
+	object.rotation.y = Math.PI / 2;
+	object.matrixAutoUpdate = false;
+	object.updateMatrix();
+	object.userData.bondLengthShort = bondLength + 'px';
+	object.userData.bondLengthFull = ( bondLength + 55 ) + 'px';
+	object.userData.joint = joint;
+	joint.add( object );
+	root.add( joint );
+	objects.push( object );
+}
 ```
 
 ## FontLoader
@@ -278,6 +352,12 @@ mesh2.position.set( 40, 0, 0 );
 
 scene.add( mesh2 );
 ```
+JSON模式得模型
+```js
+const loader = new THREE.ObjectLoader();
+const object = await loader.loadAsync( 'models/json/lightmap/lightmap.json' );
+scene.add( object );
+```
 
 ## SVG
 svg_sandbox
@@ -387,3 +467,40 @@ v0、v1、v2表示三角形的边长
 代码技巧
 `vectors[ i % 3 ].toArray( centers, i * 3 );`
 
+
+
+## Maneger
+实例：webgl_loader_3mf
+示例：webgl_materials_envmaps_exr
+```js
+const manager = new THREE.LoadingManager();
+manager.onLoad = function () {
+	const aabb = new THREE.Box3().setFromObject( object );
+	const center = aabb.getCenter( new THREE.Vector3() );
+	object.position.x += ( object.position.x - center.x );
+	object.position.y += ( object.position.y - center.y );
+	object.position.z += ( object.position.z - center.z );
+	controls.reset();
+	scene.add( object );
+	render();
+};
+
+loader = new ThreeMFLoader( manager );
+loadAsset( params.asset );
+function loadAsset( asset ) {
+	loader.load( 'models/3mf/' + asset + '.3mf', function ( group ) {
+		if ( object ) {
+			object.traverse( function ( child ) {
+				if ( child.material ) child.material.dispose();
+				if ( child.material && child.material.map ) child.material.map.dispose();
+				if ( child.geometry ) child.geometry.dispose();
+			} );
+			scene.remove( object );
+		}
+		object = group;
+	} );
+}
+```
+1. 在管理的加载函数load完成后进行渲染
+
+示例：webgl_loader_obj

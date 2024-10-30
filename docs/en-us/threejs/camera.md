@@ -1,20 +1,22 @@
 ## 相机的运动
 > 物理含义
 
-相机运动的方向的单位向量 **乘以** 平移距离 **等于** 位移向量: `disV = camara.getWorldDirection().clone().mutiplyScalar(200)`
-相机的初始位置 **加上** 位移向量 **等于** 相机的新位置：`camara.position.add(disV)`
+相机运动的方向的单位向量 **乘以** 平移距离 **等于** 位移向量:  
+ `disV = camara.getWorldDirection().clone().mutiplyScalar(200)`  
+相机的初始位置 **加上** 位移向量 **等于** 相机的新位置：  
+`camara.position.add(disV)`
 
+## 相机类型
 
-## 正交相机OrthographicCamera
+### 正交相机OrthographicCamera
 在这种投影模式下，无论物体距离相机距离远或者近，在最终渲染的图片中物体的大小都保持不变。
 
 - `OrthographicCamera( left : Number, right : Number, top : Number, bottom : Number, near : Number, far : Number )`
 
 
-## 立方体相机CubeCamera
+### 立方体相机CubeCamera
 
 创建6个渲染到WebGLCubeRenderTarget的摄像机。
-
 
 ```js
 // 把CubeCamera作为场景的子对象添加到场景中
@@ -32,25 +34,17 @@ cubeCamera.update( renderer, scene );
 
 **总结：动态纹理投射**
 
-## 多个控制器
-```js
-// disable orbitControls while using transformControls
-transformControls.addEventListener( 'mouseDown', () => orbitControls.enabled = false );
-```
-
-## 整列相机
-ArrayCamera 用于更加高效地使用一组已经预定义的摄像机来渲染一个场景。这将能够更好地提升VR场景的渲染性能。
+### 阵列相机ArrayCamera
+ArrayCamera 用于更加高效地使用一组已经预定义的摄像机来渲染一个场景。这将能够更好地提升VR场景的渲染性能。  
 一个 ArrayCamera 的实例中总是包含着一组子摄像机，应当为每一个子摄像机定义viewport（视口）这个属性，这一属性决定了由该子摄像机所渲染的视口区域的大小。
 
-只需要创建一个模型物体，创建100个相机矩阵，就等于100个模型物体
 
-
-一个正方形平局分配的算法，已知量：粒子个数AMOUNT=6；边长length = 1（length/2为偏移量）；例子间距为gap=length/(AMOUNT-1)=1/5
-
+只需要创建一个模型物体，创建100个相机矩阵，就等于100个模型物体  
+一个正方形平局分配的算法  
+已知量：粒子个数AMOUNT=6；边长length = 1（length/2为偏移量）；例子间距为gap=length/(AMOUNT-1)=1/5  
 
 ```js
 for ( let y = 0; y < AMOUNT; y ++ ) {
-
     for ( let x = 0; x < AMOUNT; x ++ ) {
         /**
          * x: 6个一循环 0 285 570 865 1141 1426
@@ -59,34 +53,27 @@ for ( let y = 0; y < AMOUNT; y ++ ) {
          */
         // 大小是以当前屏幕视口大小/个数，平局分布在屏幕空间中
         const subcamera = new THREE.PerspectiveCamera( 40, ASPECT_RATIO, 0.1, 10 );
-        // 
         subcamera.viewport = new THREE.Vector4( Math.floor( x * WIDTH ), Math.floor( y * HEIGHT ), Math.ceil( WIDTH ), Math.ceil( HEIGHT ) );
         // 相机的位置,从左到右，从上到下
         // 1. x坐标计算公式：点的索引*间距 - 偏移量 = 索引 * (length / (amount-1)) - 偏移量
         subcamera.position.x = ( x / (AMOUNT-1) ) - 0.5;
         subcamera.position.y = 0.5 - ( y / (AMOUNT-1) );
         subcamera.position.z = 1.5;
-
         // 相机的位置坐标乘以2扩大倍 = 视野扩大2倍 = 物体缩小二倍
         subcamera.position.multiplyScalar( 2 );
         subcamera.lookAt( 0, 0, 0 );
         subcamera.updateMatrixWorld();
         cameras.push( subcamera );
-        
         // 在遍历循环中获取第几个
         const subcamera = camera.cameras[ AMOUNT * y + x ]
-
         }
-
     }
 ```
-> 相机位置发生变化为什么要更新世界矩阵？(必要条件吗？)
-
 - `viewport：Vector4`视口范围
 大小是以当前屏幕视口大小
 
 
-## 电影相机cinematicCamera
+### 电影相机cinematicCamera
 
 在Three.js中，CinematicCamera并不是一个内置的相机类型，但它是基于Three.js的自定义扩展或插件，用于实现电影级别的视觉效果，如景深、动态模糊、镜头光晕等。虽然Three.js本身提供了PerspectiveCamera和OrthographicCamera等基本的相机类型，但CinematicCamera通过引入额外的渲染技术和后期处理来增强这些基本相机的功能。
 
@@ -183,17 +170,6 @@ object.layers.enable( 1 );
     light.layers.enable( 1 );
     light.layers.enable( 2 );
 ```
-
-## 相机切换原理
-原理是：
-1. 渲染函数中调用`this.renderer.render(this.scene, this.camera);`
-2. 传入不同得相机
-3. 将相机作为子对象添加到物体模型中
-```js
-    cameraHelper.update();
-	renderer.render( scene, params.animationView === true ? splineCamera : camera );
-```
-
 
 ## 相机沿着曲线运动
 核心原理：**插值运算**
@@ -305,7 +281,46 @@ function render() {
 ```
 
 ## 相机小技巧
-1. 将屏幕分成两半， `0.5 * aspect`
+> 如何将屏幕分成多份，渲染多个场景，切换相机
+- `asepect`
+- `.setViewport`
+- `.autoClear`
+- `.render`
+- `.lookAt`
+
+总结：通过切换渲染的相机来改变视角，类似控制监视器
+相机切换原理
+原理是：
+1. 渲染函数中调用`this.renderer.render(this.scene, this.camera);`
+2. 传入不同得相机
+3. 将相机作为子对象添加到物体模型中
+
+```js
+cameraHelper.update();
+renderer.render( scene, params.animationView === true ? splineCamera : camera );
+```
+
 ```js
 camera = new THREE.PerspectiveCamera( 50, 0.5 * aspect, 1, 10000 );
+renderer.autoClear = false;
+function render() {
+        renderer.clear();
+        renderer.setViewport( 0, 0, SCREEN_WIDTH / 2, SCREEN_HEIGHT );
+        renderer.render( scene, activeCamera );
+        renderer.setViewport( SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2, SCREEN_HEIGHT );
+        renderer.render( scene, camera );
+    }
+
+```
+
+2. 初始化相机角度的代码
+示例：webgl_pmrem_test
+相机正视物体
+```js
+function updateCamera() {
+    const horizontalFoV = 40;
+    const verticalFoV = 2 * Math.atan( Math.tan( horizontalFoV / 2 * Math.PI / 180 ) / camera.aspect ) * 180 / Math.PI;
+    camera.fov = verticalFoV;
+    camera.updateProjectionMatrix();
+}
 ```

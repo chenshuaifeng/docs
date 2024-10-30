@@ -50,6 +50,7 @@ lightProbe.copy(texture)
 ### PMREMGenerator 环境光
 THREEJS内置的环境光纹理shdow
 PMREM 是一种用于物理渲染（特别是基于物理的材质和光照）的优化技术，它允许你以较低的成本在多个不同的粗糙度级别上模拟光照
+从场景中获取和从HDR纹理中获取texture
 ```js
 // 创建PMREM实例
 const pmremGenerator = new THREE.PMREMGenerator( renderer );
@@ -58,6 +59,48 @@ const pmremGenerator = new THREE.PMREMGenerator( renderer );
 scene.environment = pmremGenerator.fromScene( new RoomEnvironment( renderer ), 0.04 ).texture;
 ```
 没有光照，光线因子从光线生成器中生成后贴图给物体的envMap
+
+示例2：
+```js
+function createObjects() {
+    const pmremGenerator = new THREE.PMREMGenerator( renderer );
+    pmremGenerator.compileEquirectangularShader();
+    let radianceMap = null;
+    new RGBELoader()
+    .setPath( 'textures/equirectangular/' )
+    .load( 'spot1Lux.hdr', function ( texture ) {
+        radianceMap = pmremGenerator.fromEquirectangular( texture ).texture;
+        pmremGenerator.dispose();
+        scene.background = radianceMap;
+        const geometry = new THREE.SphereGeometry( 0.4, 32, 32 );
+        for ( let x = 0; x <= 10; x ++ ) {
+            for ( let y = 0; y <= 2; y ++ ) {
+                const material = new THREE.MeshPhysicalMaterial( {
+                    roughness: x / 10,
+                    metalness: y < 1 ? 1 : 0,
+                    color: y < 2 ? 0xffffff : 0x000000,
+                    envMap: radianceMap,
+                    envMapIntensity: 1
+                } );
+                const mesh = new THREE.Mesh( geometry, material );
+                mesh.position.x = x - 5;
+                mesh.position.y = 1 - y;
+                scene.add( mesh );
+            }
+        }
+        render();
+    } );
+}
+```
+
+```js
+	new THREE.TextureLoader().load( 'textures/equirectangular.png', function ( texture ) {
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+    texture.encoding = THREE.sRGBEncoding;
+    pngCubeRenderTarget = pmremGenerator.fromEquirectangular( texture );
+    pngBackground = texture;
+} );
+ ```
 
 ```js  
 
@@ -171,15 +214,14 @@ function renderPortal( thisPortalMesh, otherPortalMesh, thisPortalTexture ) {
 
     }
 ```
-
-    球体表面的光
-
+2. 模拟球体表面的光
+示例：webgl_pmrem_test
 ```js
     const directionalLight = new THREE.DirectionalLight( 0xffffff, 0 ); // set intensity to 0 to start
     const x = 597;
     const y = 213;
     const theta = ( x + 0.5 ) * Math.PI / 512;
     const phi = ( y + 0.5 ) * Math.PI / 512;
-
     directionalLight.position.setFromSphericalCoords( 100, - phi, Math.PI / 2 - theta );
 ```
+使用光照时，光照强度是1，环境光贴图光照强度是0; 使用PMREM光照技术时光照强度时0,环境光贴图光照强度是1;

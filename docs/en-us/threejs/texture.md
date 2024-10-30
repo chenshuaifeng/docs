@@ -5,12 +5,25 @@
 const refractionCube = new THREE.CubeTextureLoader().load( urls );
 refractionCube.mapping = THREE.CubeRefractionMapping;
 ```
+- `repeat`: Vector2
+- `offset`: Vector2
+
+纹理贴图得示例：webgl_materials_texture_rotation
+
 `- .refractionRatio : Float`
-空气的折射率（IOR）（约为1）除以材质的折射率。它与环境映射模式THREE.CubeRefractionMapping 和THREE.EquirectangularRefractionMapping一起使用。   折射率不应超过1。默认值为0.98。 取值【0，1】
+示例：webgl_materials_cubemap
+折射率，空气的折射率（IOR）（约为1）除以材质的折射率。它与环境映射模式THREE.CubeRefractionMapping 和THREE.EquirectangularRefractionMapping一起使用。   折射率不应超过1。默认值为0.98。 取值【0，1】
 与`mapping`一起使用,值越大越像水晶/玻璃透明
+
 
 - `.reflectivity : Float`
 环境贴图对表面的影响程度; 见.combine。默认值为1，有效范围介于0（无反射）和1（完全反射）之间。
+
+塑料质感
+```js
+const cubeMaterial3 = new THREE.MeshLambertMaterial( { color: 0xff6600, envMap: reflectionCube, combine: THREE.MixOperation, reflectivity: 0.3 } );
+```
+总结：envMap\refractionRatio\reflectivity\mapping
 
 - `colorSpace`: 纹理的颜色空间
 ```js
@@ -37,15 +50,20 @@ THREE.LinearSRGBColorSpace = "srgb-linear"
     }
     sphereMaterial.needsUpdate = true;
 ```
+- `.mipmaps `: Array
+用户所给定的mipmap数组（可选）
+示例：webgl_materials_cubemap_mipmaps
 
 - `vertexColors ` : Boolean
 是否使用顶点着色。默认值为false。 此引擎支持RGB或者RGBA两种顶点颜色，取决于缓冲 attribute 使用的是三分量（RGB）还是四分量（RGBA）。
 
 
-> 纹理的三个核心API: offset\repeat\center
+> 纹理的三个核心API: offset\repeat\center  
+texture.wrapS = texture.wrapT = THREE.RepeatWrapping;  
+这个属性当repeat 大于1时，此时纹理图片缩小，一个面平铺好几个。使用这个属性铺满全平面  
+或者offset偏移后也能够铺满全平面
 ```js
 // 纹理平铺模式
-texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 // 纹理像素
 texture.repeat.set( 0.008, 0.008 );
 ```
@@ -54,7 +72,7 @@ repeat(x,y) 是指在x,y轴展开多少个纹理
 
 **offset偏移原理**
 当 repeat=（1，1）, 偏移x偏移0.1时，x轴纹理向左移动0.1个单位，y偏移0.1时，y轴向下偏移0.1个单位
-
+offset是向XY的负方向偏移
 ## 精灵（Sprite）动画帧FramebufferTexture
 精灵是一个总是面朝着摄像机的平面，通常含有使用一个半透明的纹理。
 
@@ -117,6 +135,17 @@ repeat(x,y) 是指在x,y轴展开多少个纹理
     renderer.render( sceneOrtho, cameraOrtho );
  ```
 
+ 纹理映射模式
+ 图形如何应用到物体对象上
+ 1. 默认值通过UV坐标映射到物体上
+
+ THREE.UVMapping
+THREE.CubeReflectionMapping
+THREE.CubeRefractionMapping
+THREE.EquirectangularReflectionMapping
+THREE.EquirectangularRefractionMapping
+THREE.CubeUVReflectionMapping
+
  **环境贴图投影**
 运用于物体紧贴地面的场景
  ```js
@@ -143,8 +172,9 @@ function render() {
     env.height = params.height;
 }
 ```
+总结：使用内置得shader将环境贴图：GroundProjectedEnv， 通过控制env得高度来更新
 
-node
+光源贴图：
 webgl_materials_lightmap
 
 
@@ -412,6 +442,7 @@ renderer.copyFramebufferToTexture( frameTexture, vector );
 这有助于调试几何体中的UV问题，并允许新用户可视化UV的内容。
 threejs中缓冲几何体的UV坐标
 
+实例:misc_uv_tests
 ```js
 import { UVsDebug } from 'three/addons/utils/UVsDebug.js';
 ```

@@ -187,7 +187,7 @@ const shape1 = new THREE.Shape( pts1 );
 
 2. 创建CatmullRomCurve3
 保存曲线的全局对象 -->通过position生成曲线(没有创建Line) ---> 创建buffergeometry --> 申请200个点的buffer空间 --> 创建Line ---> 添加到场景对象中 ---> loader曲线上四个端点 ---> 用给定的坐标替换postition值，确当端点位置 ---> 通过求插值方式给position赋值 ---> 更新
-**更具点生成3维曲线，使用 插值法求出点，赋值给lineBufferGeometry**
+**从Curve上获取点赋值给BufferAtrribute**
 
 ## 在曲线上运动
 ```js

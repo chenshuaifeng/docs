@@ -323,6 +323,7 @@ for ( let x = 0, i = 0; x < 32; x ++ ) {
 lineGeometry.attributes.position.setXYZ(startV)
 lineGeometry.attributes.position.setXYZ(endV)
 lineGeometry.attributes.position.needUpdate = true
+顶点属性发生变化需要手动更新
 
 方法二：通过bufferGeometry的setFromPoints赋值
 当位置向量先不知道时可以先创建，然后在赋值
@@ -385,7 +386,39 @@ const render = () => {
 geometry居中方法
 ```js
 xOffset = (Geometry.boundingBox.max.x-geometry.min.x ) / 2
+// 实例：webgl_geometry_text_stroke
+const shapes = font.generateShapes( message, 100 );
+const geometry = new THREE.ShapeGeometry( shapes );
+geometry.computeBoundingBox();
+const xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
+geometry.translate( xMid, 0, 0 );
 ```
+shape的洞洞
+```js
+	// make line shape ( N.B. edge view remains visible )
+  const holeShapes = [];
+  for ( let i = 0; i < shapes.length; i ++ ) {
+    const shape = shapes[ i ];
+    if ( shape.holes && shape.holes.length > 0 ) {
+      for ( let j = 0; j < shape.holes.length; j ++ ) {
+        const hole = shape.holes[ j ];
+        holeShapes.push( hole );
+      }
+    }
+  }
+  shapes.push.apply( shapes, holeShapes );
+  const style = SVGLoader.getStrokeStyle( 5, color.getStyle() );
+  const strokeText = new THREE.Group();
+  for ( let i = 0; i < shapes.length; i ++ ) {
+    const shape = shapes[ i ];
+    const points = shape.getPoints();
+    const geometry = SVGLoader.pointsToStroke( points, style );
+    geometry.translate( xMid, 0, 0 );
+    const strokeMesh = new THREE.Mesh( geometry, matDark );
+    strokeText.add( strokeMesh );
+  }
+  scene.add( strokeText );
+  ```
 
 ## BoxGeometry模拟生成化学键
 ```js

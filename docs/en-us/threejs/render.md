@@ -17,6 +17,18 @@ renderer.toneMappingExposure = Math.pow( params.exposure, 5.0 )
 - `.getContext`
 返回当前WebGL环境
 
+- `.autoClear`
+
+- `.autoClearColor `
+renderer是否清除颜色缓存。 默认是true  
+实例：webgl_postprocessing_crossfade  
+- `.setClearColor()`
+设置场景背景颜色及其透明度 
+
+- `.autoClearStencil : Boolean`
+清除模板缓存
+
+
 - `.anisotropy`
 ```js
 texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -81,6 +93,36 @@ function animate() {
 
 }
 ```
+### 分屏渲染
+```js
+function render() {
+    updateSize();
+    for ( let ii = 0; ii < views.length; ++ ii ) {
+
+        const view = views[ ii ];
+        const camera = view.camera;
+
+        view.updateCamera( camera, scene, mouseX, mouseY );
+
+        const left = Math.floor( windowWidth * view.left );
+        const bottom = Math.floor( windowHeight * view.bottom );
+        const width = Math.floor( windowWidth * view.width );
+        const height = Math.floor( windowHeight * view.height );
+
+        renderer.setViewport( left, bottom, width, height );
+        renderer.setScissor( left, bottom, width, height );
+        renderer.setScissorTest( true );
+        renderer.setClearColor( view.background );
+
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+
+        renderer.render( scene, camera );
+
+    }
+
+}
+```
 
 ## WebGLCubeRenderTarget
 
@@ -117,6 +159,15 @@ cubeCamera.update( renderer, scene );
 car.visible = true;
 
 ```
+
+## WebGLRenderTarge
+render target是一个缓冲，就是在这个缓冲中，视频卡为正在后台渲染的场景绘制像素。 它用于不同的效果，例如用于在一个图像显示在屏幕上之前先做一些处理
+实例：webgl_postprocessing_crossfade
+WebGLRenderTarge用来渲染过度专场场景
+
+转场的必要条件：
+1. 多场景scene
+
 
 使用插值的方式让控制器跟随场景中的物体移动,核心更新`orbitControls.tagert`
 
@@ -157,13 +208,23 @@ if ( OOI.sphere && conf.followSphere ) {
 ```
 
 ## SVGRenderer
+示例：svg_lines
 SVG也有一些十分重要的限制：
-
-没有高级的着色器
-不支持纹理
-不支持阴影
-
-SVGrenderer可以用做粗的线
+没有高级的着色器\不支持纹理\不支持阴影  
+SVGrenderer可以用做粗的线  
+**分段数与弧度在曲线中的应用---获取顶点**
+```js
+const vertices = [];
+const divisions = 50;
+for ( let i = 0; i <= divisions; i ++ ) {
+    const v = ( i / divisions ) * ( Math.PI * 2 );
+    const x = Math.sin( v );
+    const z = Math.cos( v );
+    vertices.push( x, 0, z );
+}
+const geometry = new THREE.BufferGeometry();
+geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+```
 
 
 ## CSS3D与正交相机

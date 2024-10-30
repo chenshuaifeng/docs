@@ -3,14 +3,16 @@ RGB通道的应用关系
 
  
 ## 基本属性
-- `alphaToCoverage` : Boolean
+- .`alphaToCoverage` : Boolean
 true // only works when WebGLRenderer's "antialias" is set to "true"
+启用alpha to coverage. 只能在开启了MSAA的渲染环境中使用 (当渲染器创建的时候antialias 属性要true才能使用). 默认为 false
 
 - `vertexColors ` : Boolean
 是否使用顶点着色。默认值为false。 此引擎支持RGB或者RGBA两种顶点颜色，取决于缓冲 attribute 使用的是三分量（RGB）还是四分量（RGBA）。
 当使用自定义缓冲几何体bufferGeometry时，给几何体添加材质时会用到
 
-
+- `needUpdate`: Boolean
+材质属性发生改变，需要调用needUpdate方法
 
 - `sizeAttenuation` : Boolean
 指定点的大小是否因相机深度而衰减。（仅限透视摄像头。）默认为true。
@@ -19,8 +21,10 @@ true // only works when WebGLRenderer's "antialias" is set to "true"
 更改剪裁平面的行为，以便仅剪切其交叉点，而不是它们的并集。默认值为 false。
 
 - `.alphaTest: Float`
-不透明度低于此值，则不会渲染材质， 指rgba中的a或者说opcity的值小于这个这个值不会渲染
+与透明度opcity有关，不透明度低于此值，则不会渲染材质， 指rgba中的a或者说opcity的值小于这个这个值不会渲染
 
+- `.colorWrite `: Boolean
+是否渲染材质的颜色。 这可以与网格的renderOrder属性结合使用，以创建遮挡其他对象的不可见对象。默认值为true。
 
 随机设置颜色的方法
 ```js
@@ -47,6 +51,7 @@ new GLTFLoader().load( 'models/gltf/Nefertiti/Nefertiti.glb', function ( gltf ) 
 	} );
 } );
 ```
+
 
 ### 贴图
 基础材质具有的贴图属性：
@@ -88,7 +93,7 @@ MeshPhoneMatrial高光材质
 与 shininess一起使用
 
 - `.needUpdate`：Boolean
-物体创建好后，给添加材质，需要手动更新needUpdate
+贴图属性发生了变化需要手动更新
 ```js
 const groundGeometry = new THREE.PlaneGeometry( 20, 20, 10, 10 );
 	const groundMaterial = new THREE.MeshBasicMaterial( { color: 0xcccccc } );
@@ -179,7 +184,6 @@ const params = {
     "specularIntensity": 1
 }
 ```
-
 
 ## Color
 `HSL`：颜色、饱和度、亮度

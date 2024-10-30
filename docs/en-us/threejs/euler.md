@@ -9,6 +9,18 @@ euler -- 指定了旋转量的欧拉角。
 与mesh.rotation.copy(Euler)方法相同
 
 
+示例：css3d_orthographic
+```js
+	createPlane(
+        100, 100,
+        'yellowgreen',
+        new THREE.Vector3( 0, 50, 0 ),
+        new THREE.Euler( - 90 * THREE.MathUtils.DEG2RAD, 0, 0 )
+    );
+```
+**.Rotation是Eulre构造函数**
+应用实例：css3d_orthographic
+
 1. 创建一个欧拉角表示特定旋转角度
 ```js
 //创建一个欧拉角对象，表示绕x轴旋转60度
@@ -63,3 +75,4 @@ const theta = THREE.MathUtils.degToRad( effectController.azimuth );
 sun.setFromSphericalCoords( 1, phi, theta );
 ```
 设置球面坐标系，模拟天空上的物体的坐标点
+

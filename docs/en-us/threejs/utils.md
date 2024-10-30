@@ -68,3 +68,11 @@ new THREE.Box3().setFromObject( child ).getCenter( child.position ).multiplyScal
 ```
 包围盒可以用来移动物体位置
 
+
+## Tessellation 曲面细分
+示例：webgl_modifier_tessellation
+一种类似于变形复原过程，细分为三角面片，对任何模型对象都适用
+
+## Morphtargets变形
+示例：webgl_morphtargets
+将物体形态变换的过程

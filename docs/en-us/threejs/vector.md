@@ -26,7 +26,9 @@ positions.needsUpdate = true;
 attribute - 来源的attribute。   
 index - 在attribute中的索引。  
 
-从attribute中设置向量的x值、y值、z值和w值
+从BufferGeometry中给Vector中赋值
+向量数组
+
 ```js
 const vertices = [];
 const positionAttribute = dodecahedronGeometry.getAttribute( 'position' );
@@ -44,6 +46,29 @@ const pointsMaterial = new THREE.PointsMaterial( {
 const pointsGeometry = new THREE.BufferGeometry().setFromPoints( vertices );
 const points = new THREE.Points( pointsGeometry, pointsMaterial );
 ```
+
+- `.fromArray ( array : Array, offset : Integer ) : this`
+从postions中获取vector
+```js
+for ( let i = 0; i < length; i ++ ) {
+    vector.fromArray( positions, i * 3 );
+    vector.applyMatrix4( matrix );
+    sortArray.push( [ vector.z, i ] );
+}
+```
+- `.fromBufferAttribute ( attribute : BufferAttribute, index : Integer ) : this`
+从postions中获取vector
+```js
+for ( let i = 0; i < positionAtoms.count; i ++ ) {
+position.fromBufferAttribute( positionAtoms, i );
+color.fromBufferAttribute( colorAtoms, i );
+}
+```
+两个方法有相似的地方，第一个循环体总长度【x,y,z】,第二个是循环点的数量。
+
+- `.lerp (v: Vector, f: Float)`
+求两个向量之间的位置
+
 
 - `.set ( x : Float, y : Float, z : Float ) : this`  
 设置该向量的x、y 和 z 分量。
@@ -78,6 +103,7 @@ color.toArray( colors, i * 3 );
 - `.add ( v : Vector4 )` : this  
 将传入的向量v和这个向量相加。
 向量与向量相加的物理意义，向量沿（x,y,z）方向移动了x,y,z距离，表示位置
+向量的加法在3维空间中也表示从A点看向B点，调整线的方向
 
 
 ```js
@@ -221,4 +247,64 @@ offset.set( x, y, z ).normalize();
 // 沿着offset方向平移5个单位
 offset.multiplyScalar( 5 ); // move out at least 5 units from center in current direction
 offset.set( x + offset.x, y + offset.y, z + offset.z );
+```
+
+向量的运算
+两个物体之间画线,示例:css3d_molecules
+
+1. 确定开始向量\结束向量,注意与物体的放大倍数保持一致
+2. 求物体之间的长度,注意减去两个物体的半径,结束向量减去开始向量,物体的半径在模型创建时确定
+3. 因为线的质心在中点,所以使用的插值的方式,求出中点位置即是线的位置
+```js
+joint.position.copy( start );
+joint.position.lerp( end, 0.5 );
+```
+
+```js
+
+					for ( let i = 0; i < positionBonds.count; i += 2 ) {
+						start.fromBufferAttribute( positionBonds, i );
+						end.fromBufferAttribute( positionBonds, i + 1 );
+						start.multiplyScalar( 75 );
+						end.multiplyScalar( 75 );
+						tmpVec1.subVectors( end, start );
+						const bondLength = tmpVec1.length() - 50;
+						let bond = document.createElement( 'div' );
+						bond.className = 'bond';
+						bond.style.height = bondLength + 'px';
+						let object = new CSS3DObject( bond );
+						object.position.copy( start );
+						object.position.lerp( end, 0.5 );
+						object.userData.bondLengthShort = bondLength + 'px';
+						object.userData.bondLengthFull = ( bondLength + 55 ) + 'px';
+						const axis = tmpVec2.set( 0, 1, 0 ).cross( tmpVec1 );
+						const radians = Math.acos( tmpVec3.set( 0, 1, 0 ).dot( tmpVec4.copy( tmpVec1 ).normalize() ) );
+						const objMatrix = new THREE.Matrix4().makeRotationAxis( axis.normalize(), radians );
+						object.matrix.copy( objMatrix );
+						object.quaternion.setFromRotationMatrix( object.matrix );
+						object.matrixAutoUpdate = false;
+						object.updateMatrix();
+						root.add( object );
+						objects.push( object );
+						bond = document.createElement( 'div' );
+						bond.className = 'bond';
+						bond.style.height = bondLength + 'px';
+						const joint = new THREE.Object3D( bond );
+						joint.position.copy( start );
+						joint.position.lerp( end, 0.5 );
+						joint.matrix.copy( objMatrix );
+						joint.quaternion.setFromRotationMatrix( joint.matrix );
+						joint.matrixAutoUpdate = false;
+						joint.updateMatrix();
+						object = new CSS3DObject( bond );
+						object.rotation.y = Math.PI / 2;
+						object.matrixAutoUpdate = false;
+						object.updateMatrix();
+						object.userData.bondLengthShort = bondLength + 'px';
+						object.userData.bondLengthFull = ( bondLength + 55 ) + 'px';
+						object.userData.joint = joint;
+						joint.add( object );
+						root.add( joint );
+						objects.push( object );
+					}
 ```

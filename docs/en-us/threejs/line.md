@@ -48,3 +48,6 @@ scene.add( wireframe );
 ```
 
 由于OpenGL限制，Threejs内置的材质无法设置线宽，需要采用自定义着色器方式设置
+
+## svg_lines
+使用SVGLine可以设置线宽

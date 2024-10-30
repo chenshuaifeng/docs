@@ -1,0 +1,4 @@
+1. morph 变形
+
+geometry:morphAttributes.position[0] morph的position与atrribute不一样。有个position属性，值为数组
+mesh:morphTargetInfluences权重；morphTargetDictionary：索引
