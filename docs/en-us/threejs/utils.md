@@ -18,7 +18,21 @@ tolerance -- 要合并的顶点属性之间允许的最大差异。 默认为 1e
     boxGeometry.deleteAttribute( 'uv' );
 ```
 
+## GeometryCompressionUtils
+mesh的压缩工具
+示例：webgl_buffergeometry_compression
 
+```js
+if ( data[ 'QuantizePosEncoding' ] ) {
+    GeometryCompressionUtils.compressPositions( mesh );
+}
+if ( data[ 'NormEncodingMethods' ] !== 'None' ) {
+    GeometryCompressionUtils.compressNormals( mesh, data[ 'NormEncodingMethods' ] );
+}
+if ( data[ 'DefaultUVEncoding' ] ) {
+    GeometryCompressionUtils.compressUvs( mesh );
+}
+```
 
 
 - `.mergeVertices ( geometry : BufferGeometry, tolerance : Number ) : BufferGeometry`

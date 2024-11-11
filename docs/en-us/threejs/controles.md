@@ -6,6 +6,12 @@
 - `.target `: Vector3
 控制器的焦点
 
+- `.setCamera`: Camera
+当相机切换后可以使用这个方法切换控制相机
+示例：misc_controls_arcball
+```js
+controls.setCamera( camera );
+```
 
 > 轨道控制器实例化后不起作用
 
@@ -15,6 +21,20 @@
 调整往上整体调整视角，比如看人的上半身
 1. camera.lookAt(0, 1, 0)
 2. controles.set(0, 1, 0)
+
+## 拖拽控制器(DragControls)
+- `.attach ( object : Object3D ) : this`
+这个方法与add()的区别是：用这个方法添加的子对象不受父节点位置关系的影响
+示例：misc_controls_drag
+用以实现鼠标拖拽3D物体
+
+涉及的事件
+```js
+controls.addEventListener( 'drag', render );
+document.addEventListener( 'click', onClick );
+window.addEventListener( 'keydown', onKeyDown );
+window.addEventListener( 'keyup', onKeyUp );
+```
 
 
 ## 变换控制器 TransformControls
@@ -52,3 +72,9 @@ TrackballControls 与 OrbitControls 相类似。然而，它不能恒定保持�
 
 ## 指针锁定控制器PointerLockControls
 实例：misc_controls_pointerlock
+实现第一人称漫游功能
+
+
+## MapControls
+Jump跳跃是将相机的高度抬高
+

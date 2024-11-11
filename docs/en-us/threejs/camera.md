@@ -13,6 +13,11 @@
 
 - `OrthographicCamera( left : Number, right : Number, top : Number, bottom : Number, near : Number, far : Number )`
 
+算法，由小到大，由大到小
+```js
+velocity.x -= velocity.x * 10.0 * delta;
+velocity.z -= velocity.z * 10.0 * delta;
+```
 
 ### 立方体相机CubeCamera
 

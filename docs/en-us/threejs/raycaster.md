@@ -91,9 +91,50 @@ for ( let i = 0, il = objects.length; i < il; i ++ ) {
  2.2 如果物体对象obb与光线相交，赋值相交点  
  `obb.intersectRay( ray, intersectionPoint )`
 
+2. 射线的起点就是相机的位置
+示例：misc_controls_pointerlock
+运动计算、在运动中光线捕获
+
+2.1 物体的捕获
+```js
+raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
+
+// 设置捕获起点为相机的位置相当于人的眼睛
+raycaster.ray.origin.copy( controls.getObject().position );
+raycaster.ray.origin.y -= 10;
+
+```
+控制能否跳跃的关键字：canJump
+核心是对摄像机的控制
+
+1. 初始化当相机小于一定高度可以跳跃
+```js
+// 
+controls.getObject().position.y += ( velocity.y * delta ); // new behavior
+
+if ( controls.getObject().position.y < 10 ) {
+    // 速度减为零
+    velocity.y = 0;
+    controls.getObject().position.y = 10;
+    // 
+    canJump = true;
+}
+
+
+```
+
+
+```js
+raycaster.ray.origin.copy( controls.getObject().position );
+raycaster.ray.origin.y -= 10;
+```
 
 实例：webgl_interactive_lines
 线捕获时点触发的范围：
  ```js
  raycaster.params.Line.threshold = 3;
  ```
+
+
+ 鼠标交互-圈选示例：misc_boxselection
+

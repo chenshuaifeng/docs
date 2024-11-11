@@ -259,6 +259,7 @@ offset.set( x + offset.x, y + offset.y, z + offset.z );
 joint.position.copy( start );
 joint.position.lerp( end, 0.5 );
 ```
+**向量的模长就是css3D物体的像素长**
 
 ```js
 

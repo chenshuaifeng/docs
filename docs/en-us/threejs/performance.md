@@ -105,3 +105,26 @@ function formatBytes( bytes, decimals ) {
 
     }
 ```
+
+## GeometryCompressionUtils
+mesh的压缩工具
+示例：webgl_buffergeometry_compression
+
+```js
+if ( data[ 'QuantizePosEncoding' ] ) {
+    GeometryCompressionUtils.compressPositions( mesh );
+}
+if ( data[ 'NormEncodingMethods' ] !== 'None' ) {
+    GeometryCompressionUtils.compressNormals( mesh, data[ 'NormEncodingMethods' ] );
+}
+if ( data[ 'DefaultUVEncoding' ] ) {
+    GeometryCompressionUtils.compressUvs( mesh );
+}
+```
+
+```js
+	function computeGPUMemory( mesh ) {
+	// Use BufferGeometryUtils to do memory calculation
+	memoryDisplay.setValue( BufferGeometryUtils.estimateBytesUsed( mesh.geometry ) + ' bytes' );
+}
+```

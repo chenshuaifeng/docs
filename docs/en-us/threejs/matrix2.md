@@ -87,6 +87,14 @@ object.matrixAutoUpdate = false;
 object.updateMatrix();
 ```
 
+> 应用矩阵:给geometry应用矩阵和给mesh应用矩阵有什么不同?
+一般先给geometry使用
+
+示例:webgl_interactive_buffergeometry
+```js
+mesh.updateMatrix();
+line.geometry.applyMatrix4( mesh.matrix );	
+```
 
 ## 代码示例
 通过矩阵进行旋转

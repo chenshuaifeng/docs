@@ -104,11 +104,32 @@ const image = document.createElement( 'img' );
 				}
 ```
 
-## Canvas与CSS3D相结合
+## ElementImage\Canvas与CSS3D相结合
 示例:css3d_molecules
 
 1. 使用Canvas+图片创建自定义图片
 2. 单独给图片添加颜色
+```js
+function colorify( ctx, width, height, color ) {
+
+				const r = color.r, g = color.g, b = color.b;
+
+				const imageData = ctx.getImageData( 0, 0, width, height );
+				const data = imageData.data;
+
+				for ( let i = 0, l = data.length; i < l; i += 4 ) {
+
+					data[ i + 0 ] *= r;
+					data[ i + 1 ] *= g;
+					data[ i + 2 ] *= b;
+
+				}
+
+				ctx.putImageData( imageData, 0, 0 );
+
+			}
+```
+
 
 > 如何将所有的小球用线连起来  
 

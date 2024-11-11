@@ -327,10 +327,17 @@ scene.add(reflectorPlane);
       depthWrite: false,
     });
 ```
+> 怎样开启第二UV
+示例：webgl_materials_channels
+```js
+geometry.attributes.uv2 = geometry.attributes.uv;
+```
 
 ## 自定义BufferGeometry中的texture
 1. uniform
 2. glsl
+
+纹理Texture的自动更新update大于材质的
 
 
 ## 自定义ShaderMaterial的time属性
@@ -445,4 +452,74 @@ threejs中缓冲几何体的UV坐标
 实例:misc_uv_tests
 ```js
 import { UVsDebug } from 'three/addons/utils/UVsDebug.js';
+```
+2. Text+Canvas+Material
+示例：webgl_materials_blending_custom
+```js
+function generateLabelMaterial( text, bg ) {
+    const canvas = document.createElement( 'canvas' );
+    const ctx = canvas.getContext( '2d' );
+    canvas.width = 128;
+    canvas.height = 32;
+
+    ctx.fillStyle = bg;
+    ctx.fillRect( 0, 0, 128, 32 );
+
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 11pt arial';
+    ctx.fillText( text, 8, 22 );
+
+    const map = new THREE.CanvasTexture( canvas );
+
+    const material = new THREE.MeshBasicMaterial( { map: map, transparent: true } );
+    return material;
+
+}
+```
+
+3. 一个Canvas纹理
+示例：webgl_materials_texture_filters
+```js
+const imageCanvas = document.createElement( 'canvas' );
+    const context = imageCanvas.getContext( '2d' );
+
+    imageCanvas.width = imageCanvas.height = 128;
+
+    context.fillStyle = '#ddd';
+    context.fillRect( 0, 0, 128, 128 );
+
+    context.fillStyle = '#fff';
+    context.fillRect( 0, 0, 64, 64 );
+    context.fillRect( 64, 64, 64, 64 );
+
+    const textureCanvas = new THREE.CanvasTexture( imageCanvas );
+    textureCanvas.repeat.set( 1000, 1000 );
+    textureCanvas.wrapS = THREE.RepeatWrapping;
+    textureCanvas.wrapT = THREE.RepeatWrapping;
+
+```
+4. 纹理的的粒子系统
+
+更改图片颜色
+```js
+function updateDataTexture( texture ) {
+    const size = texture.image.width * texture.image.height;
+    const data = texture.image.data;
+    // generate a random color and update texture data
+    color.setHex( Math.random() * 0xffffff );
+    const r = Math.floor( color.r * 255 );
+    const g = Math.floor( color.g * 255 );
+    const b = Math.floor( color.b * 255 );
+    for ( let i = 0; i < size; i ++ ) {
+        const stride = i * 4;
+        data[ stride ] = r;
+        data[ stride + 1 ] = g;
+        data[ stride + 2 ] = b;
+        data[ stride + 3 ] = 1;
+    }
+}
+```
+
+```js
+renderer.copyTextureToTexture( position, dataTexture:target , diffuseMap:to );
 ```

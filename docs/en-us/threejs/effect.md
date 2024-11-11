@@ -125,6 +125,27 @@ composer2.render();
 
 renderer.setScissorTest( false );
 ```
+```js
+function render() {
+
+	camera.position.x += ( mouseX - camera.position.x ) * .05;
+	camera.position.y += ( - ( mouseY - 200 ) - camera.position.y ) * .05;
+
+	camera.lookAt( scene.position );
+
+	renderer.clear();
+	renderer.setScissorTest( true );
+
+	renderer.setScissor( 0, 0, SCREEN_WIDTH / 2 - 2, SCREEN_HEIGHT );
+	renderer.render( scene, camera );
+
+	renderer.setScissor( SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2 - 2, SCREEN_HEIGHT );
+	renderer.render( scene2, camera );
+
+	renderer.setScissorTest( false );
+
+	}
+```
 
 ## 天空
 方案一：天空=SphereGeometry + CanvasTexture, canvas方案

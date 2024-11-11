@@ -249,6 +249,24 @@ function animate() {
   }
 
 ```
+设置中点CenterAttribute
+```js
+function setupAttributes( geometry ) {
+  const vectors = [
+    new THREE.Vector3( 1, 0, 0 ),
+    new THREE.Vector3( 0, 1, 0 ),
+    new THREE.Vector3( 0, 0, 1 )
+  ];
+  const position = geometry.attributes.position;
+  const centers = new Float32Array( position.count * 3 );
+  for ( let i = 0, l = position.count; i < l; i ++ ) {
+    vectors[ i % 3 ].toArray( centers, i * 3 );
+  }
+  geometry.setAttribute( 'center', new THREE.BufferAttribute( centers, 3 ) );
+}
+```
+
+
 自定义BufferGeometry的颜色动起来，满足的条件：
 1. 申请缓冲区大小，顶点属性为空
 2. colorAttribute属性的setUsage为动态`THREE.DynamicDrawUsage`
@@ -298,6 +316,8 @@ geometry = new THREE.PlaneGeometry( 20000, 20000, worldWidth - 1, worldDepth - 1
 2. 更新模型矩阵
 3. 给InstanceMesh应用Matrix
 
+
+floorGeometry = floorGeometry.toNonIndexed(); // ensure each face has unique vertices
 
 ```js
 for ( let x = 0, i = 0; x < 32; x ++ ) {

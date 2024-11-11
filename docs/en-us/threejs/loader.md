@@ -156,6 +156,33 @@ for ( let i = 0; i < positionBonds.count; i += 2 ) {
 }
 ```
 
+## SVGLoader
+示例:webgl_geometry_text_stroke
+可以将向量点转换成Geometry
+
+```js
+const style = SVGLoader.getStrokeStyle( 5, color.getStyle() );
+
+	const strokeText = new THREE.Group();
+
+	for ( let i = 0; i < shapes.length; i ++ ) {
+
+		const shape = shapes[ i ];
+
+		const points = shape.getPoints();
+
+		const geometry = SVGLoader.pointsToStroke( points, style );
+
+		geometry.translate( xMid, 0, 0 );
+
+		const strokeMesh = new THREE.Mesh( geometry, matDark );
+		strokeText.add( strokeMesh );
+
+	}
+
+	scene.add( strokeText );
+	```
+
 ## FontLoader
 
 ```js

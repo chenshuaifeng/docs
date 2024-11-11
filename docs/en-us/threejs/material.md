@@ -14,6 +14,19 @@ true // only works when WebGLRenderer's "antialias" is set to "true"
 - `needUpdate`: Boolean
 材质属性发生改变，需要调用needUpdate方法
 
+如果材质销毁不用了UPdate
+```js
+lineSegments.geometry.dispose();
+mesh.geometry.dispose();
+mesh.material.dispose();
+if ( mesh.material.map ) mesh.material.map.dispose();
+
+lineSegments.geometry = new THREE.WireframeGeometry( geometry );
+mesh.geometry = geometry;
+mesh.material = new THREE.MeshPhongMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
+mesh.material.map = data.texture ? texture : null;
+```
+
 - `sizeAttenuation` : Boolean
 指定点的大小是否因相机深度而衰减。（仅限透视摄像头。）默认为true。
 

@@ -194,3 +194,5 @@ positions.setXYZ( 1, n.x, n.y, n.z );
 positions.needsUpdate = true;
 ```
 **通过向量的加法运算使得向量垂直于物体表面**
+
+1. 使用modifier修改器对几何体顶点进行修改
